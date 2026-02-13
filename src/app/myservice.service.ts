@@ -12,7 +12,6 @@ export class MyserviceService {
 
   private baseUrl = 'https://mobileapi.mmarkonline.com/api/';
 
-
   constructor(private http: HttpClient) {}
 
   // ✅ Example GET request to your C# API
@@ -26,41 +25,35 @@ export class MyserviceService {
     return this.http.post(`${this.baseUrl}Login/logout`, payload);
   }
 
-  get_DropDown_Data(item:any){
+  get_DropDown_Data(item: any) {
     const payload = item;
     return this.http.post(`${this.baseUrl}DropDown`, payload);
   }
 
   getArtNo(categoryId: string) {
-  return this.http.post(`${this.baseUrl}NewOrder/GetArtNo`, {
-    CategoryID: categoryId
-  });
-}
+    return this.http.post(`${this.baseUrl}NewOrder/GetArtNo`, {
+      CategoryID: categoryId,
+    });
+  }
 
   getArtNoDetails(payload: any) {
-  return this.http.post(`${this.baseUrl}NewOrder/GetArtNoDetails`, payload);
-}
+    return this.http.post(`${this.baseUrl}NewOrder/GetArtNoDetails`, payload);
+  }
 
-  getArtColor(payload :any){
+  getArtColor(payload: any) {
     return this.http.post(`${this.baseUrl}NewOrder/GetArtColor`, payload);
   }
 
-  saveNewOrder(payload :any){
+  saveNewOrder(payload: any) {
     return this.http.post(`${this.baseUrl}NewOrder/SaveNewOrder`, payload);
   }
 
-  getOrderList(payload:any) {
-  return this.http.post(
-    `${this.baseUrl}NewOrder/GetOrderList`,
-    payload
-  );
-}
-  viewOrder(payload:any) {
-  return this.http.post(
-    `${this.baseUrl}NewOrder/ViewOrders`,
-    payload
-  );
-}
+  getOrderList(payload: any) {
+    return this.http.post(`${this.baseUrl}NewOrder/GetOrderList`, payload);
+  }
+  viewOrder(payload: any) {
+    return this.http.post(`${this.baseUrl}NewOrder/ViewOrders`, payload);
+  }
 
   //============================Article Inventory==========================
 
@@ -84,7 +77,7 @@ export class MyserviceService {
     const payload = item;
     return this.http.post(
       `${this.baseUrl}ArticleInventory/getarticle`,
-      payload
+      payload,
     );
   }
 
@@ -118,47 +111,44 @@ export class MyserviceService {
 
   //============================Carton Inventory==========================
 
-    get_getavailable_bardcode(item: any) {
+  get_getavailable_bardcode(item: any) {
     const payload = item;
     return this.http.post(
       `${this.baseUrl}CartonInventory/getavailable`,
-      payload
+      payload,
     );
   }
 
-
   //=================insert carton inventrory==============================
-    Inset_Carton_Inventory(item: any) {
+  Inset_Carton_Inventory(item: any) {
     const payload = item;
     return this.http.post(`${this.baseUrl}CartonInventory/insert`, payload);
   }
   //=================get carton inventrory list==============================
-    get_Carton_inventory_list() {
+  get_Carton_inventory_list() {
     return this.http.post(`${this.baseUrl}CartonInventory/list`, {});
   }
 
   //=================select carton inventrory==============================
-  
+
   select_Carton_inventory(id: any) {
     return this.http.post(`${this.baseUrl}CartonInventory/select/${id}`, {});
   }
 
-    Commit_carton_Inventory(item: any) {
+  Commit_carton_Inventory(item: any) {
     const payload = item;
     return this.http.post(`${this.baseUrl}CartonInventory/commit`, payload);
   }
 
   //===================update carton inventory==========================
-    update_Carton_inventory(item: any) {
+  update_Carton_inventory(item: any) {
     const payload = item;
     return this.http.post(`${this.baseUrl}CartonInventory/update`, payload);
   }
 
-//=================delete carton inventrory==============================
+  //=================delete carton inventrory==============================
 
   delete_Carton_inventory(id: any) {
     return this.http.post(`${this.baseUrl}CartonInventory/delete/${id}`, {});
   }
-
-  
 }

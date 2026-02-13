@@ -37,7 +37,16 @@ export class ViewOrderListComponent {
 
   this.service.getOrderList(payload).subscribe((res: any) => {
     if (res.flag === "1") {
-      this.allOrders = res.data || [];
+      this.allOrders = (res.data || []).map((o: any) => {
+
+        const utcDate = new Date(o.ORDER_DATE + 'Z'); // force UTC
+
+        return {
+          ...o,
+          ORDER_DATE: utcDate
+        };
+
+      });
       this.applyDateFilter();   // 👈 apply default filter
     }
 
