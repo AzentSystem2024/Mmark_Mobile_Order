@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { MyserviceService } from '../myservice.service';
 import { ToastrService } from 'ngx-toastr';
@@ -62,11 +62,28 @@ export class RetailerFormComponent {
     private router: Router,
     private service: MyserviceService,
     private toastr: ToastrService,
+    private elementRef: ElementRef,
   ) {
     this.loadState();
     this.loadDealer();
     // this.loadDistrict();
   }
+@HostListener('document:click', ['$event'])
+onDocumentClick(event: MouseEvent) {
+
+  const clickedInside =
+    this.elementRef.nativeElement
+      .querySelector('.dropdown-wrapper')
+      ?.contains(event.target);
+
+  if (!clickedInside) {
+    this.showDealerList = false;
+    this.showStateDrp=false
+    this.showDistrictDrp=false
+  }
+
+}
+
 
   goBack() {
     this.showUnsavedPopup = true;
@@ -141,6 +158,12 @@ export class RetailerFormComponent {
     this.filteredDealers = this.dealer_list.filter((d: any) =>
       d.DESCRIPTION.toLowerCase().includes(this.selected_dealer.toLowerCase()),
     );
+  }
+  openDealerDropdown() {
+    this.showDealerList = true;
+
+    // Optional: show all dealers when first opened
+    this.filteredDealers = [...this.dealer_list];
   }
 
   selectDealer(dealer: any) {
@@ -219,9 +242,7 @@ export class RetailerFormComponent {
   filterDistrict() {
     this.showDistrictDrp = true;
     this.filteredDistrictlist = this.district_list.filter((d: any) =>
-      d.DISTRICT.toLowerCase().includes(
-        this.selected_District.toLowerCase(),
-      ),
+      d.DISTRICT.toLowerCase().includes(this.selected_District.toLowerCase()),
     );
   }
   selectDistrict(district: any) {
@@ -250,6 +271,17 @@ export class RetailerFormComponent {
   //     }
   //   });
   // }
+
+  openStateDrp(){
+    this.showStateDrp=true
+      this.filteredStatelist = [...this.state_list];
+
+
+  }
+  openDistrictDrp(){
+   this.showDistrictDrp=true
+    this.filteredDistrictlist = [...this.district_list];
+  }
   saveRetailer() {
     // Reset all error flags first
     this.Retailer_name = false;
@@ -303,10 +335,13 @@ export class RetailerFormComponent {
       isValid = false;
     }
 
-
     // STOP if invalid
     if (!isValid) {
       this.toastr.error('Please fill all required fields');
+      return;
+    }
+      if (!this.confirmPassword) {
+      this.toastr.error('Confirm required fields');
       return;
     }
 
@@ -317,7 +352,7 @@ export class RetailerFormComponent {
     this.service.insert_retailer(payload).subscribe((res: any) => {
       if (res.Flag === 1) {
         this.toastr.success('Retailer inserted Successfully');
-         this.router.navigate(['/home']);
+        this.router.navigate(['/home']);
       } else {
         this.toastr.error(res.Message);
       }
