@@ -1,0 +1,236 @@
+<div class="home-wrapper">
+  <!-- Header -->
+  <div class="home-header">
+    <i class="fa-solid fa-angle-left back-icon" (click)="goBack()"></i>
+  </div>
+  <p style="text-align: center; font-size: 20px; font-weight: 700">
+    Create New Retailer
+  </p>
+  <p style="text-align: center">Please create a new retailer</p>
+
+  <!-- Form -->
+  <div class="form-container">
+    <input
+      class="form-input"
+      placeholder="Retailer Name"
+      [(ngModel)]="saveData.RETAILER_NAME"
+      (ngModelChange)="Retailer_name = false"
+    />
+    <span *ngIf="Retailer_name" style="color: red; font-size: 12px">
+      Retailer name is required
+    </span>
+
+    <div class="dropdown-wrapper dropdown-box">
+      <input
+        #dealerInput
+        type="text"
+        class="search-input"
+        placeholder="Dealer"
+        [(ngModel)]="selected_dealer"
+        (input)="filterDealers()"
+        (ngModelChange)="dealererror = false"
+      />
+      <span *ngIf="dealererror" style="color: red; font-size: 12px">
+        dealer name is required
+      </span>
+
+      <div class="dropdown-list" *ngIf="showDealerList">
+        <div
+          class="dropdown-item"
+          *ngFor="let d of filteredDealers"
+          (click)="selectDealer(d)"
+        >
+          {{ d.DESCRIPTION }}
+        </div>
+      </div>
+    </div>
+    <input
+      class="form-input"
+      [(ngModel)]="saveData.ADDRESS"
+      placeholder="Address"
+      (ngModelChange)="addresserror = false"
+    />
+    <span *ngIf="addresserror" style="color: red; font-size: 12px">
+      Address is required
+    </span>
+
+    <div class="row-flex">
+      <div class="dropdown-wrapper dropdown-box">
+        <input
+          #stateinput
+          type="text"
+          class="form-input half"
+          placeholder="State"
+          [(ngModel)]="selected_State"
+          (input)="filterState()"
+        />
+
+        <div class="dropdown-list" *ngIf="showStateDrp">
+          <div
+            class="dropdown-item"
+            *ngFor="let state of filteredStatelist"
+            (click)="selectState(state)"
+          >
+            {{ state.DESCRIPTION }}
+          </div>
+        </div>
+      </div>
+      <div class="dropdown-wrapper dropdown-box">
+        <input
+          #Districtinput
+          type="text"
+          class="form-input half"
+          placeholder="District"
+          [(ngModel)]="selected_District"
+          (input)="filterDistrict()"
+        />
+
+        <div class="dropdown-list" *ngIf="showDistrictDrp">
+          <div
+            class="dropdown-item"
+            *ngFor="let district of filteredDistrictlist"
+            (click)="selectDistrict(district)"
+          >
+            {{ district.DISTRICT }}
+          </div>
+        </div>
+      </div>
+      <!-- <div>
+        <select
+          class="form-input half"
+          [(ngModel)]="selected_State"
+          (ngModelChange)="state_error = false"
+        >
+          <option value="">State</option>
+
+          <option *ngFor="let state of state_list" [value]="state.ID">
+            {{ state.DESCRIPTION }}
+          </option>
+        </select>
+
+        <span *ngIf="state_error" style="color: red; font-size: 12px">
+          State is required
+        </span>
+      </div>
+
+      <div>
+        <select
+          class="form-input half"
+          [(ngModel)]="selected_District"
+          (ngModelChange)="district_Error = false"
+        >
+          <option value="">District</option>
+
+          <option *ngFor="let district of district_list" [value]="district.ID">
+            {{ district.DESCRIPTION }}
+          </option>
+        </select>
+        <span *ngIf="district_Error" style="color: red; font-size: 12px">
+          District is required
+        </span>
+      </div> -->
+    </div>
+    <div class="input-Number">
+      <i class="fa fa-mobile icon"></i>
+
+      <input
+        class="form-input"
+        placeholder="Mobile No"
+        [(ngModel)]="saveData.MOBILE"
+        (ngModelChange)="onMobileChange($event)"
+        (keypress)="allowOnlyNumbers($event)"
+      />
+    </div>
+
+    <span *ngIf="mobile_error" class="error-text"> Mobile No is required </span>
+ <span *ngIf="invalid_number" class="error-text"> Invalid Mobile No </span>
+
+    <div class="input-Number">
+      <i class="fa fa-user icon" aria-hidden="true"></i>
+
+      <input
+        class="form-input"
+        placeholder="User Name"
+        [(ngModel)]="saveData.LOGIN_NAME"
+        (ngModelChange)="loginname = false"
+      />
+    </div>
+
+    <!-- <span *ngIf="loginname" style="color: red; font-size: 12px">
+      User name is required
+    </span> -->
+    <div class="input-group">
+      <div class="input-Number">
+        <i class="fa fa-lock icon" aria-hidden="true"></i>
+
+        <input
+          class="form-input"
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Password"
+          [(ngModel)]="saveData.PASSWORD"
+          (ngModelChange)="password_error = false"
+        />
+        <!-- <span *ngIf="password_error" style="color: red; font-size: 12px">
+        Password name is required
+      </span> -->
+        <i
+          class="fa-solid"
+          [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+          (click)="showPassword = !showPassword"
+        ></i>
+      </div>
+
+      <div class="input-Number mt-3">
+        <i class="fa fa-lock icon" aria-hidden="true"></i>
+
+        <input
+          class="form-input"
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          placeholder="Confirm Password"
+          [(ngModel)]="confirmPassword"
+        />
+
+        <i
+          class="fa-solid"
+          [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"
+          (click)="showConfirmPassword = !showConfirmPassword"
+        ></i>
+      </div>
+
+      <!-- <input
+      class="form-input"
+      type="password"
+      placeholder="Password"
+      name="password"
+      [(ngModel)]="saveData.PASSWORD"
+      #passwordModel="ngModel"
+      required
+    />
+
+    <input
+      class="form-input"
+      type="password"
+      placeholder="Confirm Password"
+      name="confirmPassword"
+      [(ngModel)]="confirmPassword"
+      #confirmModel="ngModel"
+      required
+    /> -->
+
+      <!-- Error Message -->
+      <div
+        class="error"
+        *ngIf="confirmPassword && saveData.PASSWORD !== confirmPassword"
+      >
+        Passwords do not match
+      </div>
+
+      <!-- <button class="save-btn" (click)="saveRetailer()">SAVE RETAILER</button> -->
+      <div class="add-cart-bar">
+        <button class="add-cart-btn" (click)="saveRetailer()">
+          SAVE RETAILER
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

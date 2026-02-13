@@ -5,7 +5,6 @@
 />
 
 <div class="home-wrapper">
-
   <!-- Header -->
   <div class="home-header">
     <!-- <img
@@ -20,7 +19,6 @@
     /> -->
 
     <div class="header-title">
-
       <!-- userType = 4 -->
       <ng-container *ngIf="userType === 4">
         <div class="retailer">{{ userName }}</div>
@@ -36,25 +34,20 @@
       <ng-container *ngIf="userType !== 4 && userType !== 13">
         <div class="retailer">{{ userName }}</div>
       </ng-container>
-
     </div>
 
     <div class="cart-wrapper" (click)="goToCart()">
-    <i class="fa-solid fa-cart-shopping cart-icon"></i>
-    <span class="cart-badge" *ngIf="cartCount > 0">
+      <i class="fa-solid fa-cart-shopping cart-icon"></i>
+      <span class="cart-badge" *ngIf="cartCount > 0">
         {{ cartCount }}
-    </span>
+      </span>
     </div>
   </div>
 
   <!-- Center buttons -->
   <div class="home-body">
-
-
     <!-- ================= SELECT TYPE ================= -->
-    <div class="select-type-wrapper"
-    *ngIf="showDealerRetailerSelect">
-
+    <div class="select-type-wrapper" *ngIf="showDealerRetailerSelect">
       <label class="radio-item">
         <input
           type="radio"
@@ -87,99 +80,96 @@
         />
         <span>Retailer</span>
       </label>
-
     </div>
 
     <!-- ================= DEALER DROPDOWN ================= -->
-    <div class="dropdown-wrapper dropdown-box" *ngIf="showDealerRetailerSelect && selectedType === 'DEALER'">
-
-  <input
-    #dealerInput
-    type="text"
-    class="search-input"
-    placeholder="Search Dealer"
-    [(ngModel)]="dealerSearch"
-    (input)="filterDealers()"
-    (focus)="handleReadonlyFocus($event)"
-    [readonly]="hasCartItems()"
-  />
-
-  <div class="dropdown-list" *ngIf="showDealerList">
     <div
-      class="dropdown-item"
-      *ngFor="let d of filteredDealers"
-      (click)="selectDealer(d)">
-      {{ d.DESCRIPTION }}
+      class="dropdown-wrapper dropdown-box"
+      *ngIf="showDealerRetailerSelect && selectedType === 'DEALER'"
+    >
+      <input
+        #dealerInput
+        type="text"
+        class="search-input"
+        placeholder="Search Dealer"
+        [(ngModel)]="dealerSearch"
+        (input)="filterDealers()"
+        (focus)="handleReadonlyFocus($event)"
+        [readonly]="hasCartItems()"
+      />
+
+      <div class="dropdown-list" *ngIf="showDealerList">
+        <div
+          class="dropdown-item"
+          *ngFor="let d of filteredDealers"
+          (click)="selectDealer(d)"
+        >
+          {{ d.DESCRIPTION }}
+        </div>
+      </div>
     </div>
-  </div>
 
-</div>
-
-
-<!-- ================= SUB DEALER DROPDOWN ================= -->
-<div class="dropdown-wrapper dropdown-box"
-     *ngIf="showDealerRetailerSelect && selectedType === 'SUB_DEALER'">
-
-  <input
-    #subDealerInput
-    type="text"
-    class="search-input"
-    placeholder="Search Sub Dealer"
-    [(ngModel)]="subDealerSearch"
-    (input)="filterSubDealers()"
-    (focus)="handleReadonlyFocus($event)"
-    [readonly]="hasCartItems()"
-  />
-
-  <div class="dropdown-list" *ngIf="showSubDealerList">
-
+    <!-- ================= SUB DEALER DROPDOWN ================= -->
     <div
-      class="dropdown-item"
-      *ngFor="let s of filteredSubDealers"
-      (click)="selectSubDealer(s)">
-      {{ s.DESCRIPTION }}
+      class="dropdown-wrapper dropdown-box"
+      *ngIf="showDealerRetailerSelect && selectedType === 'SUB_DEALER'"
+    >
+      <input
+        #subDealerInput
+        type="text"
+        class="search-input"
+        placeholder="Search Sub Dealer"
+        [(ngModel)]="subDealerSearch"
+        (input)="filterSubDealers()"
+        (focus)="handleReadonlyFocus($event)"
+        [readonly]="hasCartItems()"
+      />
+
+      <div class="dropdown-list" *ngIf="showSubDealerList">
+        <div
+          class="dropdown-item"
+          *ngFor="let s of filteredSubDealers"
+          (click)="selectSubDealer(s)"
+        >
+          {{ s.DESCRIPTION }}
+        </div>
+
+        <div class="dropdown-empty" *ngIf="!filteredSubDealers.length">
+          No results found
+        </div>
+      </div>
     </div>
-
-    <div class="dropdown-empty" *ngIf="!filteredSubDealers.length">
-      No results found
-    </div>
-
-  </div>
-</div>
-
 
     <!-- ================= RETAILER DROPDOWN ================= -->
-  <div class="dropdown-wrapper dropdown-box" *ngIf="showDealerRetailerSelect && selectedType === 'RETAILER'">
-
-  <input
-    #retailerInput
-    type="text"
-    class="search-input"
-    placeholder="Search Retailer"
-    [(ngModel)]="retailerSearch"
-    (input)="filterRetailers()"
-    (focus)="handleReadonlyFocus($event)"
-    [readonly]="hasCartItems()"
-  />
-
-  <div class="dropdown-list" *ngIf="showRetailerList">
-
     <div
-      class="dropdown-item"
-      *ngFor="let r of filteredRetailers"
-      (click)="selectRetailer(r)">
-      {{ r.DESCRIPTION }}
+      class="dropdown-wrapper dropdown-box"
+      *ngIf="showDealerRetailerSelect && selectedType === 'RETAILER'"
+    >
+      <input
+        #retailerInput
+        type="text"
+        class="search-input"
+        placeholder="Search Retailer"
+        [(ngModel)]="retailerSearch"
+        (input)="filterRetailers()"
+        (focus)="handleReadonlyFocus($event)"
+        [readonly]="hasCartItems()"
+      />
+
+      <div class="dropdown-list" *ngIf="showRetailerList">
+        <div
+          class="dropdown-item"
+          *ngFor="let r of filteredRetailers"
+          (click)="selectRetailer(r)"
+        >
+          {{ r.DESCRIPTION }}
+        </div>
+
+        <div class="dropdown-empty" *ngIf="!filteredRetailers.length">
+          No results found
+        </div>
+      </div>
     </div>
-
-    <div class="dropdown-empty" *ngIf="!filteredRetailers.length">
-      No results found
-    </div>
-
-  </div>
-
-</div>
-
-
 
     <button class="primary-btn" (click)="goToNewOrder()">
       <i class="fa-solid fa-plus"></i>
@@ -190,7 +180,11 @@
       <i class="fa-solid fa-eye"></i>
       View Order
     </button>
+    <button class="secondary-btn" *ngIf="userType !== 4 && userType !== 13"(click)="goToRetailerOrder()">
+      <i class="bi bi-shop"></i>
 
+      Create New Retailer
+    </button>
   </div>
 
   <!-- Logout -->
@@ -198,10 +192,7 @@
     <i class="fa-solid fa-right-from-bracket"></i>
     LOGOUT
   </button>
-
 </div>
-
-
 
 <!-- Logout Confirmation -->
 <div class="logout-overlay" *ngIf="showLogoutConfirm">
@@ -219,7 +210,7 @@
 <div class="logout-overlay" *ngIf="showCartWarning">
   <div class="logout-dialog">
     <p>
-      You have items in your cart.<br>
+      You have items in your cart.<br />
       Logging out now will discard your unsaved order.
     </p>
 
@@ -234,4 +225,3 @@
     </div>
   </div>
 </div>
-
