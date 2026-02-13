@@ -1,0 +1,238 @@
+<div style="height: 100%;width: 100%;">
+      <div class="d-flex justify-content-between pt-2 ps-2 pe-2">
+     <i class="bi bi-chevron-left" (click)="closePopup()" style="font-size: 25px; color: #1c1d1e"></i>
+        <p
+    style="
+   
+      font-size: 22px;
+      font-weight: 500;
+     
+    "
+  >
+    Article Inventory
+  </p>
+       <div></div>
+      </div>
+       <div class="inventory-form p-2 ">
+         <!-- First Row -->
+  <div class="grid-2">
+    <div class="field-box">
+      <select [(ngModel)]="selectedCategory"
+          [disabled]="isStartButtonClicked"
+        (change)="onCategorySelected()">
+        <option value="" disabled selected>Category</option>
+        <option *ngFor="let item of Category_list" [value]="item.CATEGORY_ID">
+          {{ item.DESCRIPTION }}
+        </option>
+      </select>
+        <span class="error" *ngIf="categoryError">
+      Category is required
+    </span>
+
+      
+    </div>
+    
+
+    <div class="field-box">
+      <select [(ngModel)]="selectedArtno"
+        (change)="onArtnoSelected()"
+            [disabled]="isStartButtonClicked">
+        <option value="" disabled selected>Art No</option>
+        <option *ngFor="let item of ArtNo_list" [value]="item.DESCRIPTION">
+          {{ item.DESCRIPTION }}
+        </option>
+       
+
+      </select>
+       <span *ngIf="artnoError" style="color: red; font-size: 12px">
+            Art No is required
+          </span>
+    </div>
+  </div>
+
+<!-- Second Row -->
+  <div class="grid-2">
+    <div class="field-box">
+      <select [(ngModel)]="selectdColor"     [disabled]="isStartButtonClicked"
+ (change)="onColorSelected()">
+        <option value="" disabled selected>Color</option>
+        <option *ngFor="let item of Color_list" [value]="item.DESCRIPTION">
+          {{ item.DESCRIPTION }}
+        </option>
+        
+
+      </select>
+       <span *ngIf="colorError" style="color: red; font-size: 12px">
+            Color is required
+          </span>
+    </div>
+
+    <div class="field-box">
+      <select [(ngModel)]="selectedsize"    [disabled]="isStartButtonClicked"
+>         
+  <option value="" disabled selected>Size</option>
+       <option value=""> All</option>
+        <option *ngFor="let item of Size_List" [value]="item.DESCRIPTION">
+          {{ item.DESCRIPTION }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+
+
+
+  <div > <button (click)="Add_Load_Barcode_list()"  [disabled]="saveData.IS_COMPLETED" class="Start-button">Start</button></div>
+  <!-- Spinner -->
+<div *ngIf="isLoading" class="text-center mt-3">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+
+
+<input
+  #barcodeField
+  type="text"
+  [(ngModel)]="scannedBarcode"
+  [disabled]="!isStartButtonClicked || saveData.IS_COMPLETED"
+  placeholder="Scan your barcode"
+  (keyup.enter)="processScannedBarcode()"
+  autocomplete="off"
+ style="height: 37px;
+    width: 100%;
+    margin-top: 9px;
+    background: #ffff;border-radius: 8px;"
+
+/>
+
+<div class="table-wrapper">
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th style="background-color: transparent;">SL</th>
+        <th style="background-color: transparent;">Barcode</th>
+        <th style="background-color: transparent;">Scanned</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of Article_barcodelist; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.BARCODE }}</td>
+
+        <td>
+          <span *ngIf="item.FLAG === 'VERIFIED'"><i class="bi bi-flag-fill flag-green" title="Verified"></i></span>
+          <span *ngIf="item.FLAG === 'UNVERIFIED'"><i class="bi bi-flag-fill flag-red" title="Unverified"></i></span>
+        
+        </td>
+      </tr>
+
+       <tr *ngIf="Article_barcodelist.length === 0" class="dummy-row" >
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr *ngIf="Article_barcodelist.length === 0" class="dummy-row">
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+        <tr *ngIf="Article_barcodelist.length === 0" class="dummy-row" >
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+<tr *ngIf="Article_barcodelist.length === 0" class="dummy-row">
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+        <tr *ngIf="Article_barcodelist.length === 0" class="dummy-row" >
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr *ngIf="Article_barcodelist.length === 0" class="dummy-row">
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+        <tr *ngIf="Article_barcodelist.length === 0" class="dummy-row" >
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr *ngIf="Article_barcodelist.length === 0" class="dummy-row">
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+ 
+
+    </tbody>
+  </table>
+</div>
+
+        <div class="d-flex mt-2" style="justify-content: center;">
+         <div class="d-flex" style="font-size: 16px; font-weight: 500;"> <label style="color: #7C7C7C;">Items:</label> <p style="font-weight: 600; font-size: 16px;">{{totalItems}}</p></div>
+           <div
+        style="border-left: 2px solid #cccccc;
+    height: 14px;
+    margin: 6px 10px;"
+      ></div>
+        <div class="d-flex"  style="font-size: 16px; font-weight: 500;">
+            <label style="color: #34C759;">Scanned:</label>
+          <p style="font-weight: 600; font-size: 16px;">{{scannedCount}}</p>
+          
+        </div><div
+        style="border-left: 2px solid #cccccc;
+    height: 14px;
+    margin: 6px 10px;"
+      ></div>
+        <div class="d-flex"  style="font-size: 16px; font-weight: 500;"> <label style="color: #c22929;">Pending:</label>
+          <p style="font-weight: 600; font-size: 16px;">{{variance}}</p></div>
+        </div>
+
+<label style="padding: 10px 5px;">
+  <input type="checkbox"  [(ngModel)]="saveData.IS_COMPLETED"    (change)="convertCheckbox()" />
+ Completed
+</label>
+   <input type="text" class="line-input" style="width: 100%;" [(ngModel)]="saveData.REASON" placeholder="Inventory Reason">
+     <span *ngIf="ReasonError" style="color: red; font-size: 12px">
+            Inventory reason is required
+          </span>
+       
+         
+      
+
+        <div class="btn-group mb-1">
+          <button class=" reset-button"  [disabled]="saveData.IS_COMPLETED"  (click)="Reset_form()">Reset</button>
+            <button class="save-btn"  (click)="saveRecord()">Save</button>
+          <button class="commit-btn"  [disabled]="!saveData.IS_COMPLETED" (click)="commitArticleInventroy()">
+            <i class="bi bi-check2-circle me-2"></i>Commit
+          </button>
+          <!-- <button class="btn close" (click)="closePopup()">Close</button> -->
+        </div>
+
+
+</div>
+
+
+<!-- ========================= Save with limited varience ========================== -->
+<div class="popup" *ngIf="Is_Pending_High" >  <div class="popup-header">
+    
+  </div>
+
+  <div class="popup-body">
+    <p>Unscanned Article exists. do you want to complete?</p>
+     <button class="delete-btn" (click)="Save_with_pending_Article()" style="background: #30B3DB;height: 41px;width: 175px;border: none;border-radius: 32px;color: #ffff;">Save</button> <br>
+    <button class="cancel-btn mt-1" (click)="Not_save_pending_article()" style="height: 41px;width: 175px;
+    border: 1px solid #CCCCCC;
+    background: transparent;
+    border-radius: 32px;
+    color: #7C7C7C;">Cancel</button>
+  </div>
+
+
+</div>

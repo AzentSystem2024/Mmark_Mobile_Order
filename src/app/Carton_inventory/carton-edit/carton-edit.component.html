@@ -1,0 +1,235 @@
+<div style="height: 100%;width: 100%;">
+<div class="d-flex justify-content-between pt-2 ps-2 pe-2">
+     <i class="bi bi-chevron-left" (click)="closePopup()" style="font-size: 25px; color: #1c1d1e"></i>
+      
+        <p
+    style="
+     
+      font-size: 22px;
+      font-weight: 600;
+     
+    "
+  >
+  {{ isCommited ? 'Committed Carton ' : 'Carton Inventory' }}
+  </p>
+        <!-- <i class="bi bi-x" (click)="closePopup()" style="font-size: 25px; color: #1c1d1e"></i> -->
+           <div></div>
+
+</div>
+   <div class="inventory-form p-2">
+      <div class="grid-2">
+<div class="field-box">
+          <select
+          [(ngModel)]="selected_Data.CategoryId"
+          [disabled]="isStartButtonClicked"
+              (change)="onCategorySelected()"
+
+        >
+          <!-- <option value=""></option> -->
+
+        <option value="" disabled selected>Category</option>
+          <option *ngFor="let item of Category_list" [value]="item.CATEGORY_ID">
+            {{ item.DESCRIPTION }}
+          </option>
+        </select>
+         <span class="error" *ngIf="!isMultiboxChecked && categoryError">
+      Category is required
+    </span>
+</div>
+<div class="field-box">
+         <select
+          [(ngModel)]="selected_Data.ArtNo"
+          [disabled]="isStartButtonClicked"
+          (change)="onArtnoSelected()"
+        >
+           <option value="" disabled selected>Art No</option>
+          <option
+            *ngFor="let item of ArtNo_list"
+            [disabled]="isStartButtonClicked"
+            [value]="item.DESCRIPTION"
+          >
+            {{ item.DESCRIPTION }}
+          </option>
+        </select>
+            <span *ngIf="!isMultiboxChecked && artnoError" style="color: red; font-size: 12px">
+            Art No is required
+          </span>
+   </div>
+      </div>
+
+      <!-- -------------second row---------------- -->
+         <div class="grid-2">
+       
+      <div class="field-box">
+          <select
+          [(ngModel)]="selected_Data.Color"
+          [disabled]="isStartButtonClicked"
+         
+        >
+          <option value="" disabled selected>Color</option>
+          <option *ngFor="let item of Color_list" [value]="item.DESCRIPTION">
+            {{ item.DESCRIPTION }}
+          </option>
+        </select>
+          <span *ngIf=" !isMultiboxChecked && colorError"  style="color: red; font-size: 12px">
+            Color is required
+          </span>
+      </div>
+    
+  <div style="padding: 10px;">
+      
+<label>
+  <input type="checkbox" [(ngModel)]="isMultiboxChecked"  [disabled]="isStartButtonClicked"/>
+  Multibox only
+</label>
+    </div>
+   
+      </div>
+        </div>
+
+  <div> <button (click)="Load_Barcode_listUpdate()" [disabled]="IS_COMPLETED" class="Start-button">Start</button></div>
+     
+
+       
+   
+   <input
+  #barcodeFieldUpdate
+  type="text"
+  [(ngModel)]="Selected_Barcode"
+  placeholder="Scan your barcode"
+  [disabled]="isCommited || IS_COMPLETED"
+  (keyup.enter)="processScannedBarcodeUpdate()"
+  autocomplete="off"
+  style="
+    height: 37px;
+    width: 100%;
+    margin-top: 9px;
+    background: #ffffff;
+    border: 1px solid #CCCCCC;
+    border-radius: 8px;
+  "
+/>
+
+
+<div class="table-wrapper">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th style="background-color: transparent;">SL</th>
+              <th style="background-color: transparent;">Barcode</th>
+              <th style="background-color: transparent;">Scanned</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let item of Barcode_list; let i = index">
+              <td>{{ i + 1 }}</td>
+              <!-- Serial number -->
+              <td>{{ item.Barcode }}</td>
+              <!-- Barcode -->
+              <!-- Flag display -->
+              <td>
+
+                  <span   *ngIf="item.FLAG === 'VERIFIED'"><i class="bi bi-flag-fill flag-green" title="Verified"></i></span>
+                  <span   *ngIf="item.FLAG === 'UNMATCHED'"><i class="bi bi-flag-fill flag-red" title="Unverified"></i></span>
+        
+                <!-- <span
+                  *ngIf="item.FLAG === 'VERIFIED'"
+                  style="color: green; font-weight: bold"
+                >
+                  Verified
+                </span> -->
+              </td>
+            </tr>
+
+            
+       <tr *ngIf="Barcode_list.length === 0" class="dummy-row" >
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+<tr *ngIf="Barcode_list.length === 0" class="dummy-row">
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+ 
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex mt-3" style="justify-content: center;">
+        <div class="d-flex"style="font-size: 16px; font-weight: 500;">
+         
+          <label style="color: #7C7C7C;"> Items:</label>
+          <p style="font-weight: 600; font-size: 16px;">{{totalItems}}</p>
+        </div>
+         <div
+        style="border-left: 2px solid #cccccc;
+    height: 14px;
+    margin: 6px 10px;"
+      ></div>
+
+        <div class="d-flex" style="font-size: 16px; font-weight: 500;">
+          <!-- <input type="text" [value]="scannedCount" readonly placeholder=" " /> -->
+          <label style="color: #34C759;">Scanned:</label>
+          <p style="font-weight: 600; font-size: 16px;">{{scannedCount}}</p>
+        </div>
+       <div
+        style="border-left: 2px solid #cccccc;
+    height: 14px;
+    margin: 6px 10px;"
+      ></div>
+          <div class="d-flex" style="font-size: 16px; font-weight: 500;">
+          <!-- <input type="text" [value]="scannedCount" readonly placeholder=" " /> -->
+          <label  style="color:  #DB241C;">Pending:</label>
+          <p style="font-weight: 600; font-size: 16px;">{{variance}}</p>
+        </div>
+      </div>
+<label  style="padding: 10px" *ngIf="!isCommited">
+  <input type="checkbox"  [(ngModel)]="IS_COMPLETED"  [disabled]="!isStartButtonClicked"   (change)="convertCheckbox()" />
+ Completed
+</label>
+      <input
+          type="text"
+          [(ngModel)]="selected_Data.Reason"
+        class="line-input" style="width: 100%;"
+        placeholder="Inventory Reason"
+        [disabled]="isCommited || IS_COMPLETED"
+         (input)="OnchangeReason()" 
+        />
+           <span *ngIf="ReasonError" style="color: red; font-size: 12px">
+            Inventory reason is required
+          </span>
+   
+      <div *ngIf="!isCommited" class="btn-group">
+        <button class="reset-button me-3"    [disabled]="IS_COMPLETED"   (click)="Reset_form_Edit()">Reset</button>
+        <button class="save-btn"  (click)="updateInventory()">Update</button>
+        <button class="commit-btn"  [disabled]="!IS_COMPLETED"(click)="Commit_Update()"  [ngClass]="{ 'full-width': IS_COMPLETED }">  <i class="bi bi-check2-circle me-2"></i>Commit</button>
+      </div>
+
+
+   
+</div>
+
+
+<!-- ========================= Save with limited varience ========================== -->
+<div class="popup" *ngIf="Is_Pending_High">
+  <div class="popup-body">
+
+    <p>Unscanned Article exists. Do you want to complete?</p>
+
+    <button class="delete-btn"
+      (click)="Update_with_pending_Article()"
+      style="background:#30B3DB;height:41px;width:175px;border:none;border-radius:32px;color:#fff;">
+      Save
+    </button>
+    <br>
+
+    <button class="cancel-btn mt-1"
+      (click)="Not_save_pending_article()"
+      style="height:41px;width:175px;border:1px solid #ccc;background:transparent;border-radius:32px;color:#7C7C7C;">
+      Cancel
+    </button>
+
+  </div>
+</div>

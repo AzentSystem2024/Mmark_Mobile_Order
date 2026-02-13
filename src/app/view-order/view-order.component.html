@@ -1,0 +1,131 @@
+<div class="view-order-wrapper">
+
+  <!-- ================= HEADER ================= -->
+  <div class="view-header">
+    <i class="fa-solid fa-angle-left back-icon" (click)="goBack()"></i>
+    <span class="title" *ngIf="!loading">
+    Order #{{ orderNo }}
+    </span>
+
+  <span class="title sk sk-text lg" *ngIf="loading"></span>
+  </div>
+
+  <!-- ================= SKELETON LOADING ================= -->
+  <ng-container *ngIf="loading">
+
+    <div class="cart-item skeleton-card" *ngFor="let _ of [1,2]">
+
+      <!-- LEFT -->
+      <div class="cart-left">
+        <div class="sk sk-text lg"></div>
+        <div class="sk sk-text sm"></div>
+        <div class="sk sk-text xs"></div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="cart-right two-col">
+
+        <div class="cart-col">
+          <div class="sk sk-row" *ngFor="let i of [1,2,3]"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="cart-col">
+          <div class="sk sk-row" *ngFor="let i of [1,2]"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ================= EMPTY STATE ================= -->
+  <div class="empty-cart"
+       *ngIf="!loading && !order?.items?.length">
+
+    <i class="fa-solid fa-box-open empty-icon"></i>
+    <div class="empty-title">No items found</div>
+    <div class="empty-sub">
+      This order doesn’t contain any items
+    </div>
+
+  </div>
+
+  <!-- ================= ORDER ITEMS ================= -->
+  <ng-container *ngIf="!loading && order?.items?.length">
+
+    <div class="cart-item"
+         *ngFor="let item of order.items">
+
+      <!-- LEFT -->
+      <div class="cart-left">
+        <div class="art">{{ item.artNo }}</div>
+        <div class="category">{{ item.categoryName }}</div>
+
+        <div class="color">
+          {{ item.color }}
+          <span
+            class="color-dot"
+            [style.background]="getColorHex(item.color)">
+          </span>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="cart-right three-col">
+
+
+        <div class="cart-col"  *ngIf="userType != 4 && hasQty(item.setSizes)">
+          <div class="size-header">
+            <span>Set</span>
+            <span>Qty</span>
+          </div>
+
+          <div class="size-row"
+               *ngFor="let s of item.setSizes">
+            <span>{{ s.size }}</span>
+            <span>{{ s.qty }}</span>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="divider" *ngIf="userType!=4  && hasQty(item.setSizes)"></div>
+
+        <!-- SEMI -->
+        <div class="cart-col" *ngIf="userType!=4  && hasQty(item.semiSizes)">
+          <div class="size-header">
+            <span>Semi</span>
+            <span>Qty</span>
+          </div>
+
+          <div class="size-row"
+               *ngFor="let s of item.semiSizes">
+            <span>{{ s.size }}</span>
+            <span>{{ s.qty }}</span>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="divider" *ngIf="userType!=4 && hasQty(item.caseSizes)"></div>
+
+        <!-- CASE -->
+        <div class="cart-col" *ngIf="hasQty(item.caseSizes)">
+          <div class="size-header">
+            <span>Case</span>
+            <span>Qty</span>
+          </div>
+
+          <div class="size-row"
+               *ngFor="let c of item.caseSizes">
+            <span>{{ c.size }}</span>
+            <span>{{ c.qty }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

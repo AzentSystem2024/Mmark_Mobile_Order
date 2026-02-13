@@ -1,0 +1,208 @@
+.view-order-wrapper {
+  min-height: 100vh;
+  background: #f5f7f8;
+}
+
+/* HEADER */
+
+.view-header {
+ display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 20px 20px;
+
+  background: #ffffff;        /* 👈 white header */
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);  /* subtle divider */
+
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-icon {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ORDER CARD (same as cart) */
+
+.cart-item {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px;
+  margin: 12px;
+
+  display: flex;
+  gap: 12px;
+}
+
+/* LEFT */
+
+.cart-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+
+.art {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.category {
+  font-size: 14px;
+  color:#444444;
+  font-weight: 600;
+}
+
+.color {
+  font-size: 12px;
+  color: #444444;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* RIGHT */
+
+.cart-right {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+.three-col {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+/* COLUMNS */
+
+.cart-col {
+  padding-top: 12px;
+}
+
+.size-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  gap: 10px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  opacity: .7;
+}
+
+.size-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 2px;
+  gap: 10px;
+}
+
+/* DIVIDER */
+
+.divider {
+  width: 1px;
+  background: #ddd;
+  opacity: 0.7;
+}
+
+/* EMPTY STATE */
+
+.empty-cart {
+  flex: 1;
+  height: calc(100vh - 80px);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  color: #666;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  color: #bbb;
+  margin-bottom: 12px;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+/* ================= SKELETON LOADING ================= */
+
+.skeleton-card {
+  pointer-events: none;
+}
+
+.sk {
+  background: linear-gradient(
+    90deg,
+    #eeeeee 25%,
+    #f5f5f5 37%,
+    #eeeeee 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+/* text skeletons */
+.sk-text {
+  height: 12px;
+  width: 120px;
+}
+
+.sk-text.lg {
+  height: 14px;
+  width: 100px;
+}
+
+.sk-text.sm {
+  height: 12px;
+  width: 80px;
+}
+
+.sk-text.xs {
+  height: 10px;
+  width: 60px;
+}
+
+/* row skeletons (for size/qty columns) */
+.sk-row {
+  height: 12px;
+  width: 70px;
+  margin-bottom: 6px;
+}
+
+/* shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}

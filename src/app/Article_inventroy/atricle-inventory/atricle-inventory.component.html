@@ -1,0 +1,136 @@
+<div class="d-flex ms-4">
+  <button
+    (click)="homePage()"
+    style="
+      border: none;
+      background: transparent;
+      margin-top: 25px;
+      font-size: 18px;
+    "
+  >
+    <i class="bi bi-chevron-left" style="font-weight: 800"></i>
+  </button>
+  <p
+    style="
+      margin-top: 36px;
+      margin-left: 55px;
+      font-size: 22px;
+      font-weight: 600;
+     
+    "
+  >
+    Article Inventory
+  </p>
+</div>
+
+
+
+<!-- ======================list ============================== -->
+
+<div
+  class="record-card ms-4 me-4"
+  *ngFor="let record of Article_inventroy_list"
+>
+  <div class="left-section">
+
+     <div class="doc-no">{{ record.DOC_NO }}</div>
+<div> <span class="date">{{
+        record.INVENTORY_TIME 
+      }}</span>
+     </div>
+
+    <div class="sub-info">
+      
+      
+      <span class="desc">{{ record.DESCRIPTION }}</span>
+      
+
+    </div>
+  </div>
+
+  <div class="right-section d-flex">
+    <span
+      class="status"
+      style="margin: 10px; padding: 1px"
+      [ngClass]="{
+            'pending': record.STATUS === 'OPEN',
+            'success': record.STATUS === 'COMMITTED',
+            'completed': record.STATUS === 'COMPLETED'
+          
+          }"
+    >
+      <span style="margin-right: 4px;"> {{ record.STATUS.toLowerCase() }}</span>
+    </span>
+
+    <button
+      style="border: none; background-color: transparent; font-size: 25px"
+      (click)="showEditScreen(record)"
+    >
+      <i class="bi bi-three-dots"></i>
+    </button>
+  </div>
+</div>
+<!-- //===========================action popup================== -->
+<div class="popup" *ngIf="showPopupscreen">
+  <div class="Action-popup-content">
+    <button (click)="closeEditpopup()"  class="closebutton">
+      <i class="bi bi-x" style="font-weight: 800;font-size: 18;"></i>
+    </button>
+    <div class="doc-no">{{ record.DOC_NO }}</div>
+
+    <span>{{record.INVENTORY_TIME}}</span>
+
+    <div class="sub-info">
+      <!-- <span class="date">{{
+        record.INVENTORY_TIME 
+      }}</span> -->
+
+      <span class="desc">{{ record.DESCRIPTION }}</span>
+    </div>  
+
+    <hr style="border: 1px solid #ccc" />
+
+    <div class="d-flex gap-2" (click)="editRow(record)">
+      <i class="bi bi-info-circle" style="font-size: 18px"></i>
+      <span style="font-size: 18px; letter-spacing: -1%; font-weight: 400">
+        Details</span
+      >
+    </div>
+    <!-- <div class="d-flex gap-2" *ngIf="!isCommited && CanDelete" (click)="deleteRow(record)" style="margin-top: 30px">
+      <i class="bi bi-trash" style="font-size: 18px"></i>
+      <span style="font-size: 18px; letter-spacing: -1%; font-weight: 400"
+        >Delete</span
+      >
+    </div> -->
+  </div>
+</div>
+
+<!-- </div> -->
+
+<!-- <button (click)="openPopup()">New</button> -->
+<button class="fab-btn" *ngIf="CanAdd" (click)="openPopup()">
+  <i class="bi bi-plus"></i>
+</button>
+
+
+
+<!-- ========================= Delete Popup ========================== -->
+<div class="popup" *ngIf="DeletePopupScreen" >  <div class="popup-header">
+    <!-- <h3>Delete Confirmation</h3> -->
+  </div>
+
+  <div class="popup-body">
+    <p>Delete selected Inventory?</p>
+     <button class="delete-btn" (click)="confirmDelete(record)" style="background: #30B3DB;height: 41px;width: 175px;border: none;border-radius: 32px;color: #ffff;">Delete</button> <br>
+    <button class="cancel-btn mt-1" (click)="closeDeletePopup()"style="height: 41px;width: 175px;
+    border: 1px solid #CCCCCC;
+    background: transparent;
+    border-radius: 32px;
+    color: #7C7C7C;">No</button>
+  </div>
+
+
+</div>
+
+
+

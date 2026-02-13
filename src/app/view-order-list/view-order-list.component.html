@@ -1,0 +1,65 @@
+<div class="view-order-wrapper">
+
+  <!-- HEADER -->
+  <div class="view-header">
+  <i class="fa-solid fa-angle-left back-icon" (click)="goBack()"></i>
+
+  <span class="title">View Orders</span>
+
+  <!-- DATE FILTER -->
+  <select
+    class="date-filter"
+    [(ngModel)]="selectedFilter"
+    (change)="applyDateFilter()"
+  >
+    <option value="TODAY">Today</option>
+    <option value="YESTERDAY">Yesterday</option>
+    <option value="3">Last 3 Days</option>
+    <option value="5">Last 5 Days</option>
+    <option value="7">Last 7 Days</option>
+    <option value="15">Last 15 Days</option>
+    <option value="30">Last 30 Days</option>
+    <option value="ALL">All</option>
+  </select>
+</div>
+
+  <!-- 🔄 SKELETON LOADING -->
+  <div class="order-list" *ngIf="isLoading">
+    <div class="order-card skeleton" *ngFor="let i of [1,2,3,4]">
+      <div class="order-left">
+        <div class="sk-line sk-title"></div>
+        <div class="sk-line sk-date"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ❌ EMPTY STATE -->
+  <div class="empty-orders" *ngIf="!isLoading && !orders.length">
+    <i class="fa-solid fa-box-open"></i>
+    <div>No orders found</div>
+  </div>
+
+  <!-- ✅ ORDER LIST -->
+  <div class="order-list" *ngIf="!isLoading && orders.length">
+
+    <div
+      class="order-card"
+      *ngFor="let o of orders"
+      (click)="openOrder(o)"
+    >
+      <div class="order-left">
+        <div class="order-no">Order #{{ o.ORDER_NO }}</div>
+        <div class="order-date">
+          {{ o.ORDER_DATE | date:'dd MMM yyyy' }}
+        </div>
+        <div class="order-party">
+        {{ getOrderForLabel(o) }}
+      </div>
+      </div>
+
+      <i class="fa-solid fa-chevron-right arrow"></i>
+    </div>
+
+  </div>
+
+</div>

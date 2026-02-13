@@ -1,0 +1,63 @@
+<img
+  src="https://image2url.com/images/1762776299913-3dc96ccc-0bab-42d6-9215-ab37caf47823.png"
+  class="floating-logo"
+  [class.fly-to-header]="isLoggingIn"
+/>
+
+<div class="login-wrapper">
+  <div class="login-container">
+    <!-- Logo -->
+    <!-- <img
+    src="https://image2url.com/images/1762776299913-3dc96ccc-0bab-42d6-9215-ab37caf47823.png"
+    class="logo"
+    [class.move-logo]="isLoggingIn"
+  /> -->
+
+    <!-- Titles -->
+    <p class="welcome">Welcome to Mmark</p>
+    <h6>LOGIN NOW !</h6>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <!-- Username -->
+      <div class="input-box">
+        <i class="dx-icon-user"></i>
+        <input
+          type="text"
+          formControlName="LOGIN_NAME"
+          placeholder="User Name"
+          (input)="OnchangeLoginanme()"
+        />
+      </div>
+
+      <span *ngIf="LoginNameError" class="error">Login name is required</span>
+
+      <!-- Password -->
+      <div class="input-box">
+        <i class="dx-icon-lock"></i>
+
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="PASSWORD"
+          placeholder="Password"
+          (input)="OnchangePassword()"
+        />
+
+        <i
+          class="fa-solid toggle-eye"
+          [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+          (click)="showPassword = !showPassword"
+        ></i>
+      </div>
+
+      <span *ngIf="PasswordError" class="error">Password is required</span>
+
+      <!-- Forgot -->
+      <a class="forgot-password">Forgot Password?</a>
+
+      <!-- Button -->
+      <button type="submit" class="login-btn" [disabled]="isLogin">
+        LOGIN
+      </button>
+    </form>
+  </div>
+</div>

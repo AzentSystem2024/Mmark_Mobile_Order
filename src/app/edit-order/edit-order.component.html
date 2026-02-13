@@ -1,0 +1,349 @@
+<div class="home-wrapper">
+  <div class="home-header">
+    <i class="fa-solid fa-angle-left back-icon" (click)="goBack()"></i>
+
+    <div class="header-title">
+  <div class="retailer">Edit Order</div>
+  <div class="dealer" *ngIf="editItem?.artNo">
+    {{ editItem.artNo }} - {{ editItem.categoryName }}
+  </div>
+</div>
+
+    <div class="cart-wrapper" (click)="goToCart()">
+      <i class="fa-solid fa-cart-shopping cart-icon"></i>
+      <span class="cart-badge" *ngIf="cartCount > 0">
+        {{ cartCount }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Footwear Image Section -->
+  <!-- Image + Category + ArtNo ROW -->
+  <div class="product-info-row">
+    <!-- LEFT : IMAGE -->
+    <div class="product-image-wrapper" (click)="openImagePreview()">
+      <img [src]="productImage" class="main-product" />
+    </div>
+
+    <!-- IMAGE PREVIEW -->
+    <div class="image-preview-overlay" *ngIf="showImagePreview">
+      <div class="image-preview-content">
+        <i
+          class="fa-solid fa-xmark close-preview"
+          (click)="closeImagePreview()"
+        ></i>
+
+        <img [src]="productImage" class="preview-image" />
+      </div>
+    </div>
+
+    <!-- RIGHT : CATEGORY + ART NO -->
+    <div class="product-meta">
+      <!-- Category -->
+      <select
+        class="category-select"
+        [(ngModel)]="selectedCategory"
+        (change)="loadArtNos()"
+      >
+        <option value="" disabled selected hidden>Select Category</option>
+
+        <option *ngFor="let cat of categories" [value]="cat.ID">
+          {{ cat.DESCRIPTION }}
+        </option>
+      </select>
+
+      <!-- Art No -->
+      <div class="filter-left" #artBox>
+        <input
+          type="text"
+          placeholder="Enter Art No"
+          [(ngModel)]="artSearch"
+          (input)="filterArtNos()"
+          class="art-input"
+        />
+
+        <div class="art-dropdown" *ngIf="filteredArtNos.length">
+          <div
+            class="art-item"
+            *ngFor="let art of filteredArtNos"
+            (click)="selectArt(art)"
+          >
+            {{ art }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color Section -->
+  <!-- <div class="color-section">
+
+  <div class="color-label">
+    Color : {{ selectedColor }}
+  </div>
+
+  <div class="color-thumbs">
+
+    <img
+      *ngFor="let thumb of colorThumbs; let i = index"
+      [src]="thumb"
+      class="color-thumb"
+      [class.active]="currentImage === i"
+      (click)="selectColor(i)"
+    />
+
+  </div>
+
+</div> -->
+
+  <!-- <div class="size-section">
+
+  <select class="size-select" [(ngModel)]="selectedSize">
+    <option value="">Size</option>
+    <option *ngFor="let size of sizes" [value]="size">
+      {{ size }}
+    </option>
+  </select>
+
+</div> -->
+
+  <!-- Color Section -->
+  <div class="color-section" *ngIf="colors.length">
+    <div class="color-label">
+      Color :
+      <span class="color-name">{{ selectedColor?.name }}</span>
+    </div>
+
+    <div class="color-dots">
+      <div
+        class="color-dot"
+        *ngFor="let c of colors; let i = index"
+        [style.background]="c.hex"
+        [class.active]="selectedColorIndex === i"
+        (click)="selectBackendColor(i)"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Semi / Case Tabs -->
+  <div class="tab-section">
+    <div
+      class="tab-item"
+      *ngIf="showSemiTab"
+      [class.active]="selectedTab === 'Semi'"
+      (click)="selectTab('Semi')"
+    >
+      Semi
+    </div>
+
+    <div
+      class="tab-item"
+      [class.active]="selectedTab === 'Case'"
+      (click)="selectTab('Case')"
+    >
+      Case
+    </div>
+  </div>
+
+  <!-- Total Quantity -->
+  <div class="total-qty">
+    Total Quantity:
+    <span class="total-count">{{ totalQuantity }}</span>
+  </div>
+
+  <!-- Size Quantity Table -->
+  <div class="size-table">
+    <div class="table-header">
+      <span>Size(inch)</span>
+      <span>Quantity</span>
+    </div>
+
+    <div class="table-body">
+
+  <!-- DATA -->
+  <ng-container *ngIf="displayedSizes.length > 0; else noData">
+    <div
+      class="table-row"
+      *ngFor="let row of displayedSizes; let i = index"
+    >
+      <div class="size-cell">
+        <div class="size-main">
+          {{ row.size }}
+          <span class="pair-qty" *ngIf="row.PairQty">
+            ({{ row.PairQty }})
+          </span>
+        </div>
+
+        <div class="size-combo" *ngIf="row.Combination">
+          {{ row.Combination }}
+        </div>
+      </div>
+
+      <div class="row-qty">
+        <button class="qty-btn" (click)="decreaseRowQty(i)">−</button>
+
+        <input
+          type="number"
+          class="qty-input"
+          [(ngModel)]="row.qty"
+          min="0"
+          step="1"
+          (keydown)="blockInvalidKeys($event)"
+          (blur)="validateRowQty(row)"
+          [readonly]="
+            row.size.toLowerCase().includes('cut') && !row.Combination
+          "
+        />
+
+        <button
+          class="qty-btn"
+          *ngIf="!row.size.toLowerCase().includes('cut')"
+          (click)="increaseRowQty(i)"
+        >
+          +
+        </button>
+
+        <button
+          class="qty-btn"
+          *ngIf="row.size.toLowerCase().includes('cut')"
+          (click)="handleCutPlus(row)"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- NO DATA -->
+  <ng-template #noData>
+    <div class="no-data">
+      No sizes available
+    </div>
+  </ng-template>
+
+</div>
+
+  </div>
+
+  <!-- Cut Size Popup -->
+  <div class="popup-overlay" *ngIf="showCutPopup">
+    <div class="cut-popup">
+      <div class="popup-header">
+        <span class="popup-title">
+          Cut Size
+          <span class="cut-subtitle" *ngIf="selectedCutSizeLabel">
+      ({{ selectedCutSizeLabel }})
+    </span>
+        </span>
+        <i class="fa-solid fa-xmark" (click)="closeCutPopup()"></i>
+      </div>
+
+      <div class="cut-error" *ngIf="cutError">
+        {{ cutError }}
+      </div>
+
+      <div class="popup-table">
+        <div class="popup-row header">
+          <span>Size</span>
+
+          <span>
+            Quantity
+            <span class="popup-pair" *ngIf="activeCutRow?.PairQty">
+              ({{ totalCutQty }} / {{ activeCutRow.PairQty }})
+            </span>
+          </span>
+        </div>
+
+        <div class="popup-row" *ngFor="let item of cutSizes; let i = index">
+          <span>{{ item.size }}</span>
+
+          <div class="row-qty">
+            <button (click)="decCut(i)">−</button>
+            <input
+              type="number"
+              class="qty-input"
+              [(ngModel)]="item.qty"
+              min="0"
+              step="1"
+              (keydown)="blockInvalidKeys($event)"
+              (blur)="validateCutQty(item)"
+            />
+            <button
+              (click)="incCut(i)"
+              [disabled]="totalCutQty >= activeCutRow?.PairQty"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-footer">
+        <button class="cancel-btn" (click)="closeCutPopup()">Cancel</button>
+        <button class="save-btn" (click)="saveCutSize()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="uk-size-section">
+
+  <div
+    class="uk-size-box"
+    *ngFor="let uk of ukSizes"
+    [class.active]="selectedUkSize === uk"
+    (click)="selectUkSize(uk)"
+  >
+    {{ uk }} UK
+  </div>
+
+</div> -->
+
+  <!-- Quantity Selector -->
+  <!-- <div class="qty-section">
+
+  <span class="qty-label">Quantity</span>
+
+  <div class="qty-box">
+    <button class="qty-btn" (click)="decreaseQty()">−</button>
+
+    <input
+      type="number"
+      class="qty-input"
+      [(ngModel)]="quantity"
+      (blur)="validateQty()"
+      min="1"
+    />
+
+    <button class="qty-btn" (click)="increaseQty()">+</button>
+  </div>
+
+</div> -->
+
+  <!-- Add To Cart Button -->
+  <div class="add-cart-bar">
+    <button class="add-cart-btn" (click)="updateCart()" [disabled]="isSaving">
+        UPDATE CART
+    </button>
+
+  </div>
+
+  <!-- UNSAVED ALERT -->
+<div class="unsaved-overlay" *ngIf="showUnsavedPopup">
+  <div class="unsaved-dialog">
+    <p>
+      Not Added to cart, selected quantity will be lost.
+    </p>
+
+    <div class="unsaved-actions">
+      <button class="no-btn" (click)="cancelNavigation()">
+        No, Go Back
+      </button>
+
+      <button class="yes-btn" (click)="confirmNavigation()">
+        Yes, Proceed
+      </button>
+    </div>
+  </div>
+</div>
+
+</div>

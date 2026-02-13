@@ -1,0 +1,107 @@
+<div class="cart-wrapper">
+
+  <div class="cart-header-bar">
+  <i class="fa-solid fa-angle-left back-icon" (click)="goBack()"></i>
+  <span class="cart-title">Cart</span>
+</div>
+
+  <div class="empty-cart" *ngIf="!cartItems.length">
+
+  <i class="fa-solid fa-cart-shopping empty-icon"></i>
+
+  <div class="empty-title">Your cart is empty</div>
+
+  <div class="empty-sub">
+    Looks like you haven’t added anything yet
+  </div>
+
+</div>
+
+  <div class="cart-item" *ngFor="let item of cartItems; let i = index">
+
+  <!-- LEFT SIDE -->
+  <div class="cart-left">
+
+    <div class="art">{{ item.artNo }}</div>
+
+    <div class="category">{{ item.categoryName }}</div>
+
+    <div class="color">
+      {{ item.color }}
+      <span
+        class="color-dot"
+        [style.background]="getColorHex(item.color)"
+      ></span>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="cart-right three-col">
+
+  <!-- SET -->
+  <div class="cart-col" *ngIf="item.setSizes?.length">
+
+    <div class="size-header">
+      <span>Set</span>
+      <span>Qty</span>
+    </div>
+
+    <div class="size-row" *ngFor="let s of item.setSizes">
+      <span>{{ s.size }}</span>
+      <span>{{ s.qty }}</span>
+    </div>
+
+  </div>
+
+  <!-- Divider -->
+  <div class="divider" *ngIf="item.setSizes?.length"></div>
+
+  <!-- SEMI -->
+  <div class="cart-col" *ngIf="userType !== 4 && item.semiSizes?.length">
+
+    <div class="size-header">
+      <span>Semi</span>
+      <span>Qty</span>
+    </div>
+
+    <div class="size-row" *ngFor="let s of item.semiSizes">
+      <span>{{ s.size }}</span>
+      <span>{{ s.qty }}</span>
+    </div>
+
+  </div>
+
+  <div class="divider" *ngIf="userType !== 4 && item.semiSizes?.length"></div>
+
+  <!-- CASE -->
+  <div class="cart-col" *ngIf="item.caseSizes?.length">
+
+    <div class="size-header">
+      <span>Case</span>
+      <span>Qty</span>
+    </div>
+
+    <div class="size-row" *ngFor="let s of item.caseSizes">
+      <span>{{ s.size }}</span>
+      <span>{{ s.qty }}</span>
+    </div>
+
+  </div>
+
+  <!-- CLOSE -->
+  <i class="fa-solid fa-xmark close-icon" (click)="removeItem(i)"></i>
+
+</div>
+
+
+
+
+</div>
+
+
+  <div class="submit-bar" *ngIf="cartItems.length">
+    <button class="submit-btn" (click)="submitOrder()" [disabled]="isSaving">SUBMIT</button>
+  </div>
+
+</div>

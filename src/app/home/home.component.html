@@ -1,0 +1,237 @@
+<img
+  src="https://image2url.com/images/1762776299913-3dc96ccc-0bab-42d6-9215-ab37caf47823.png"
+  class="floating-logo-home"
+  [class.fly-to-login]="isLoggingOut"
+/>
+
+<div class="home-wrapper">
+
+  <!-- Header -->
+  <div class="home-header">
+    <!-- <img
+    src="https://image2url.com/images/1762776299913-3dc96ccc-0bab-42d6-9215-ab37caf47823.png"
+    class="header-logo"
+    /> -->
+
+    <!-- <img
+    src="https://image2url.com/images/1762776299913-3dc96ccc-0bab-42d6-9215-ab37caf47823.png"
+    class="header-logo"
+    *ngIf="!isLoggingOut"
+    /> -->
+
+    <div class="header-title">
+
+      <!-- userType = 4 -->
+      <ng-container *ngIf="userType === 4">
+        <div class="retailer">{{ userName }}</div>
+      </ng-container>
+
+      <!-- userType = 13 -->
+      <ng-container *ngIf="userType === 13">
+        <div class="retailer">{{ retailerName }}</div>
+        <div class="dealer">Dealer : {{ distributorName }}</div>
+      </ng-container>
+
+      <!-- userType != 4 and != 13 -->
+      <ng-container *ngIf="userType !== 4 && userType !== 13">
+        <div class="retailer">{{ userName }}</div>
+      </ng-container>
+
+    </div>
+
+    <div class="cart-wrapper" (click)="goToCart()">
+    <i class="fa-solid fa-cart-shopping cart-icon"></i>
+    <span class="cart-badge" *ngIf="cartCount > 0">
+        {{ cartCount }}
+    </span>
+    </div>
+  </div>
+
+  <!-- Center buttons -->
+  <div class="home-body">
+
+
+    <!-- ================= SELECT TYPE ================= -->
+    <div class="select-type-wrapper"
+    *ngIf="showDealerRetailerSelect">
+
+      <label class="radio-item">
+        <input
+          type="radio"
+          name="orderType"
+          value="DEALER"
+          [(ngModel)]="selectedType"
+          (change)="onTypeChange('DEALER')"
+        />
+        <span>Dealer</span>
+      </label>
+
+      <label class="radio-item">
+        <input
+          type="radio"
+          name="orderType"
+          value="SUB_DEALER"
+          [(ngModel)]="selectedType"
+          (change)="onTypeChange('SUB_DEALER')"
+        />
+        <span>Sub Dealer</span>
+      </label>
+
+      <label class="radio-item">
+        <input
+          type="radio"
+          name="orderType"
+          value="RETAILER"
+          [(ngModel)]="selectedType"
+          (change)="onTypeChange('RETAILER')"
+        />
+        <span>Retailer</span>
+      </label>
+
+    </div>
+
+    <!-- ================= DEALER DROPDOWN ================= -->
+    <div class="dropdown-wrapper dropdown-box" *ngIf="showDealerRetailerSelect && selectedType === 'DEALER'">
+
+  <input
+    #dealerInput
+    type="text"
+    class="search-input"
+    placeholder="Search Dealer"
+    [(ngModel)]="dealerSearch"
+    (input)="filterDealers()"
+    (focus)="handleReadonlyFocus($event)"
+    [readonly]="hasCartItems()"
+  />
+
+  <div class="dropdown-list" *ngIf="showDealerList">
+    <div
+      class="dropdown-item"
+      *ngFor="let d of filteredDealers"
+      (click)="selectDealer(d)">
+      {{ d.DESCRIPTION }}
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ================= SUB DEALER DROPDOWN ================= -->
+<div class="dropdown-wrapper dropdown-box"
+     *ngIf="showDealerRetailerSelect && selectedType === 'SUB_DEALER'">
+
+  <input
+    #subDealerInput
+    type="text"
+    class="search-input"
+    placeholder="Search Sub Dealer"
+    [(ngModel)]="subDealerSearch"
+    (input)="filterSubDealers()"
+    (focus)="handleReadonlyFocus($event)"
+    [readonly]="hasCartItems()"
+  />
+
+  <div class="dropdown-list" *ngIf="showSubDealerList">
+
+    <div
+      class="dropdown-item"
+      *ngFor="let s of filteredSubDealers"
+      (click)="selectSubDealer(s)">
+      {{ s.DESCRIPTION }}
+    </div>
+
+    <div class="dropdown-empty" *ngIf="!filteredSubDealers.length">
+      No results found
+    </div>
+
+  </div>
+</div>
+
+
+    <!-- ================= RETAILER DROPDOWN ================= -->
+  <div class="dropdown-wrapper dropdown-box" *ngIf="showDealerRetailerSelect && selectedType === 'RETAILER'">
+
+  <input
+    #retailerInput
+    type="text"
+    class="search-input"
+    placeholder="Search Retailer"
+    [(ngModel)]="retailerSearch"
+    (input)="filterRetailers()"
+    (focus)="handleReadonlyFocus($event)"
+    [readonly]="hasCartItems()"
+  />
+
+  <div class="dropdown-list" *ngIf="showRetailerList">
+
+    <div
+      class="dropdown-item"
+      *ngFor="let r of filteredRetailers"
+      (click)="selectRetailer(r)">
+      {{ r.DESCRIPTION }}
+    </div>
+
+    <div class="dropdown-empty" *ngIf="!filteredRetailers.length">
+      No results found
+    </div>
+
+  </div>
+
+</div>
+
+
+
+    <button class="primary-btn" (click)="goToNewOrder()">
+      <i class="fa-solid fa-plus"></i>
+      New Order
+    </button>
+
+    <button class="secondary-btn" (click)="goToViewOrder()">
+      <i class="fa-solid fa-eye"></i>
+      View Order
+    </button>
+
+  </div>
+
+  <!-- Logout -->
+  <button class="logout-btn" (click)="openLogoutConfirm()">
+    <i class="fa-solid fa-right-from-bracket"></i>
+    LOGOUT
+  </button>
+
+</div>
+
+
+
+<!-- Logout Confirmation -->
+<div class="logout-overlay" *ngIf="showLogoutConfirm">
+  <div class="logout-dialog">
+    <p>Are you sure you want to logout?</p>
+
+    <div class="logout-actions">
+      <button class="no-btn" (click)="cancelLogout()">No</button>
+      <button class="yes-btn" (click)="confirmLogout()">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cart Warning Popup -->
+<div class="logout-overlay" *ngIf="showCartWarning">
+  <div class="logout-dialog">
+    <p>
+      You have items in your cart.<br>
+      Logging out now will discard your unsaved order.
+    </p>
+
+    <div class="logout-actions">
+      <button class="no-btn" (click)="showCartWarning = false">
+        Continue Ordering
+      </button>
+
+      <button class="yes-btn" (click)="clearCartAndLogout()">
+        Logout & Discard Order
+      </button>
+    </div>
+  </div>
+</div>
+
