@@ -151,4 +151,18 @@ export class MyserviceService {
   delete_Carton_inventory(id: any) {
     return this.http.post(`${this.baseUrl}CartonInventory/delete/${id}`, {});
   }
+
+
+  //==================Retailer api insert======
+  insert_retailer(item: any) {
+    const payload = item;
+    return this.http.post(`${this.baseUrl}Retailer/insert`, payload);
+  }
+    District_drop(item: any) {
+    const payload = item;
+    return this.http.post(`${this.baseUrl}Retailer/district`, payload);
+  }
+
+
+
 }
