@@ -341,7 +341,7 @@ onDocumentClick(event: MouseEvent) {
       return;
     }
       if (!this.confirmPassword) {
-      this.toastr.error('Confirm required fields');
+      this.toastr.error('Confirm  password required fields');
       return;
     }
 

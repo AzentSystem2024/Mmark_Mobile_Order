@@ -31,7 +31,7 @@
          (focus)="openDealerDropdown()"
         (ngModelChange)="dealererror = false"
       />
-      <span *ngIf="selected_dealer" style="color: red; font-size: 12px">
+      <span *ngIf="dealererror" style="color: red; font-size: 12px">
         dealer name is required
       </span>
 
