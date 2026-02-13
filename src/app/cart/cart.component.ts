@@ -19,6 +19,7 @@ export class CartComponent {
 
   showRemoveConfirm = false;
   removeIndex: number | null = null;
+  showSubmitConfirm = false;
 
   constructor(
     private service:MyserviceService, 
@@ -114,6 +115,23 @@ cancelRemove() {
 
 goBack() {
   history.back();
+}
+
+openSubmitConfirm() {
+
+  if (!this.cartItems.length) return;
+
+  this.showSubmitConfirm = true;
+}
+
+
+cancelSubmit() {
+  this.showSubmitConfirm = false;
+}
+
+confirmSubmit() {
+  this.showSubmitConfirm = false;
+  this.submitOrder(); // existing logic
 }
 
 submitOrder() {
@@ -489,10 +507,6 @@ buildPayload() {
   };
 }
 
-
-
-
-
 parseCombination(str:string) {
 
   if (!str) return [];
@@ -515,5 +529,28 @@ parseCombination(str:string) {
 editItem(index: number) {
   this.routes.navigate(['/edit-order', index]);
 }
+
+
+getSetTotal(item: any): number {
+  return item.setSizes?.reduce(
+    (sum: number, x: any) => sum + (x.qty || 0),
+    0
+  ) || 0;
+}
+
+getSemiTotal(item: any): number {
+  return item.semiSizes?.reduce(
+    (sum: number, x: any) => sum + (x.qty || 0),
+    0
+  ) || 0;
+}
+
+getCaseTotal(item: any): number {
+  return item.caseSizes?.reduce(
+    (sum: number, x: any) => sum + (x.qty || 0),
+    0
+  ) || 0;
+}
+
 
 }

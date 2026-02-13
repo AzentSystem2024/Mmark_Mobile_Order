@@ -44,7 +44,7 @@
 
     <div class="size-header">
       <span>Set</span>
-      <span>Qty</span>
+      <span>Qty <span class="qty-badge">{{ getSetTotal(item) }}</span>  </span>
     </div>
 
     <div class="size-row" *ngFor="let s of item.setSizes">
@@ -62,7 +62,7 @@
 
     <div class="size-header">
       <span>Semi</span>
-      <span>Qty</span>
+      <span>Qty <span class="qty-badge">{{ getSemiTotal(item) }}</span></span>
     </div>
 
     <div class="size-row" *ngFor="let s of item.semiSizes">
@@ -79,7 +79,7 @@
 
     <div class="size-header">
       <span>Case</span>
-      <span>Qty</span>
+      <span>Qty <span class="qty-badge"> {{ getCaseTotal(item) }} </span> </span>
     </div>
 
     <div class="size-row" *ngFor="let s of item.caseSizes">
@@ -102,8 +102,31 @@
 
 
   <div class="submit-bar" *ngIf="cartItems.length">
-    <button class="submit-btn" (click)="submitOrder()" [disabled]="isSaving">SUBMIT</button>
+    <button class="submit-btn" (click)="openSubmitConfirm()" [disabled]="isSaving">SUBMIT</button>
   </div>
+
+
+  <!-- Submit Order Popup -->
+<div class="logout-overlay" *ngIf="showSubmitConfirm">
+  <div class="logout-dialog">
+
+    <p>
+      Confirm order submission?
+    </p>
+
+    <div class="logout-actions">
+      <button class="no-btn" (click)="cancelSubmit()">
+        No
+      </button>
+
+      <button class="sub-btn" (click)="confirmSubmit()">
+        Yes
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
 
   <!-- Remove Cart Item Popup -->

@@ -79,7 +79,7 @@
         <div class="cart-col"  *ngIf="userType != 4 && hasQty(item.setSizes)">
           <div class="size-header">
             <span>Set</span>
-            <span>Qty</span>
+            <span>Qty <span class="qty-badge">{{ getSetTotal(item) }}</span></span>
           </div>
 
           <div class="size-row"
@@ -96,7 +96,7 @@
         <div class="cart-col" *ngIf="userType!=4  && hasQty(item.semiSizes)">
           <div class="size-header">
             <span>Semi</span>
-            <span>Qty</span>
+            <span>Qty <span class="qty-badge">{{ getSemiTotal(item) }}</span></span>
           </div>
 
           <div class="size-row"
@@ -113,7 +113,7 @@
         <div class="cart-col" *ngIf="hasQty(item.caseSizes)">
           <div class="size-header">
             <span>Case</span>
-            <span>Qty</span>
+            <span>Qty <span class="qty-badge">{{ getCaseTotal(item) }}</span></span>
           </div>
 
           <div class="size-row"
