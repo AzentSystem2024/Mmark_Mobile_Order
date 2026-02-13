@@ -170,8 +170,21 @@ onPopState(event: any) {
 }
 
   goToCart() {
+
+  if (this.hasUnsavedChanges()) {
+
+    // show popup instead of direct navigation
+    this.pendingAction = () => {
+      this.router.navigate(['/cart']);
+    };
+
+    this.showUnsavedPopup = true;
+    return;
+  }
+
   this.router.navigate(['/cart']);
 }
+
 
 
   loadCategories() {
