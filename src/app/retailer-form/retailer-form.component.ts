@@ -317,6 +317,7 @@ export class RetailerFormComponent {
     this.service.insert_retailer(payload).subscribe((res: any) => {
       if (res.Flag === 1) {
         this.toastr.success('Retailer inserted Successfully');
+         this.router.navigate(['/home']);
       } else {
         this.toastr.error(res.Message);
       }
