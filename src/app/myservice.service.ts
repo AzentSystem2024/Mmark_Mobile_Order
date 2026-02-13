@@ -152,6 +152,7 @@ export class MyserviceService {
     return this.http.post(`${this.baseUrl}CartonInventory/delete/${id}`, {});
   }
 
+
   //==================Retailer api insert======
   insert_retailer(item: any) {
     const payload = item;
@@ -161,6 +162,7 @@ export class MyserviceService {
     const payload = item;
     return this.http.post(`${this.baseUrl}Retailer/district`, payload);
   }
+
 
 
 }

@@ -17,6 +17,10 @@ export class CartComponent {
   isSaving = false;
   userType:any;
 
+  showRemoveConfirm = false;
+  removeIndex: number | null = null;
+  showSubmitConfirm = false;
+
   constructor(
     private service:MyserviceService, 
     private toastr: ToastrService,
@@ -32,12 +36,27 @@ export class CartComponent {
 }
 
   removeItem(index: number) {
-
-  this.cartItems.splice(index, 1);
-
-  // Update sessionStorage
-  sessionStorage.setItem('cart', JSON.stringify(this.cartItems));
+  this.removeIndex = index;
+  this.showRemoveConfirm = true;
 }
+
+confirmRemove() {
+
+  if (this.removeIndex === null) return;
+
+  this.cartItems.splice(this.removeIndex, 1);
+
+  sessionStorage.setItem('cart', JSON.stringify(this.cartItems));
+
+  this.showRemoveConfirm = false;
+  this.removeIndex = null;
+}
+
+cancelRemove() {
+  this.showRemoveConfirm = false;
+  this.removeIndex = null;
+}
+
 
   getColorHex(color: string): string {
 
@@ -96,6 +115,23 @@ export class CartComponent {
 
 goBack() {
   history.back();
+}
+
+openSubmitConfirm() {
+
+  if (!this.cartItems.length) return;
+
+  this.showSubmitConfirm = true;
+}
+
+
+cancelSubmit() {
+  this.showSubmitConfirm = false;
+}
+
+confirmSubmit() {
+  this.showSubmitConfirm = false;
+  this.submitOrder(); // existing logic
 }
 
 submitOrder() {
@@ -471,10 +507,6 @@ buildPayload() {
   };
 }
 
-
-
-
-
 parseCombination(str:string) {
 
   if (!str) return [];
@@ -497,5 +529,28 @@ parseCombination(str:string) {
 editItem(index: number) {
   this.routes.navigate(['/edit-order', index]);
 }
+
+
+getSetTotal(item: any): number {
+  return item.setSizes?.reduce(
+    (sum: number, x: any) => sum + (x.qty || 0),
+    0
+  ) || 0;
+}
+
+getSemiTotal(item: any): number {
+  return item.semiSizes?.reduce(
+    (sum: number, x: any) => sum + (x.qty || 0),
+    0
+  ) || 0;
+}
+
+getCaseTotal(item: any): number {
+  return item.caseSizes?.reduce(
+    (sum: number, x: any) => sum + (x.qty || 0),
+    0
+  ) || 0;
+}
+
 
 }

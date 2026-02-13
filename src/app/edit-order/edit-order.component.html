@@ -4,17 +4,14 @@
 
     <div class="header-title">
   <div class="retailer">Edit Order</div>
-  <div class="dealer" *ngIf="editItem?.artNo">
-    {{ editItem.artNo }} - {{ editItem.categoryName }}
-  </div>
 </div>
 
-    <div class="cart-wrapper" (click)="goToCart()">
+    <!-- <div class="cart-wrapper" (click)="goToCart()">
       <i class="fa-solid fa-cart-shopping cart-icon"></i>
       <span class="cart-badge" *ngIf="cartCount > 0">
         {{ cartCount }}
       </span>
-    </div>
+    </div> -->
   </div>
 
   <!-- Footwear Image Section -->
@@ -44,6 +41,7 @@
         class="category-select"
         [(ngModel)]="selectedCategory"
         (change)="loadArtNos()"
+        disabled
       >
         <option value="" disabled selected hidden>Select Category</option>
 
@@ -58,19 +56,10 @@
           type="text"
           placeholder="Enter Art No"
           [(ngModel)]="artSearch"
-          (input)="filterArtNos()"
           class="art-input"
+          disabled
         />
 
-        <div class="art-dropdown" *ngIf="filteredArtNos.length">
-          <div
-            class="art-item"
-            *ngFor="let art of filteredArtNos"
-            (click)="selectArt(art)"
-          >
-            {{ art }}
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -108,42 +97,48 @@
 </div> -->
 
   <!-- Color Section -->
-  <div class="color-section" *ngIf="colors.length">
-    <div class="color-label">
-      Color :
-      <span class="color-name">{{ selectedColor?.name }}</span>
-    </div>
-
-    <div class="color-dots">
-      <div
-        class="color-dot"
-        *ngFor="let c of colors; let i = index"
-        [style.background]="c.hex"
-        [class.active]="selectedColorIndex === i"
-        (click)="selectBackendColor(i)"
-      ></div>
-    </div>
+  <div class="color-section" *ngIf="selectedColor">
+  <div class="color-label">
+    Color :
+    <span class="color-name">{{ selectedColor.name }}</span>
   </div>
+
+  <div class="color-dots">
+    <div
+      class="color-dot active"
+      [style.background]="selectedColor.hex"
+    ></div>
+  </div>
+</div>
 
   <!-- Semi / Case Tabs -->
   <div class="tab-section">
-    <div
-      class="tab-item"
-      *ngIf="showSemiTab"
-      [class.active]="selectedTab === 'Semi'"
-      (click)="selectTab('Semi')"
-    >
-      Semi
-    </div>
 
-    <div
-      class="tab-item"
-      [class.active]="selectedTab === 'Case'"
-      (click)="selectTab('Case')"
-    >
-      Case
-    </div>
+  <div
+    class="tab-item"
+    *ngIf="showSemiTab"
+    [class.active]="selectedTab === 'Set'"
+    (click)="selectTab('Set')">
+    Set
   </div>
+
+  <div
+    class="tab-item"
+    *ngIf="showSemiTab"
+    [class.active]="selectedTab === 'Semi'"
+    (click)="selectTab('Semi')">
+    Semi
+  </div>
+
+  <div
+    class="tab-item"
+    [class.active]="selectedTab === 'Case'"
+    (click)="selectTab('Case')">
+    Case
+  </div>
+
+</div>
+
 
   <!-- Total Quantity -->
   <div class="total-qty">

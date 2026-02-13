@@ -108,6 +108,20 @@ hasQty(arr: any[]): boolean {
   return Array.isArray(arr) && arr.some(x => x.qty > 0);
 }
 
+getSetTotal(item: any): number {
+  return (item.setSizes || [])
+    .reduce((a: number, b: any) => a + (b.qty || 0), 0);
+}
+
+getSemiTotal(item: any): number {
+  return (item.semiSizes || [])
+    .reduce((a: number, b: any) => a + (b.qty || 0), 0);
+}
+
+getCaseTotal(item: any): number {
+  return (item.caseSizes || [])
+    .reduce((a: number, b: any) => a + (b.qty || 0), 0);
+}
 
 }
 

@@ -50,7 +50,7 @@
       <div class="order-left">
         <div class="order-no">Order #{{ o.ORDER_NO }}</div>
         <div class="order-date">
-          {{ o.ORDER_DATE | date:'dd MMM yyyy' }}
+          {{ o.ORDER_DATE | date:'dd MMM yyyy hh:mm a' }}
         </div>
         <div class="order-party">
         {{ getOrderForLabel(o) }}

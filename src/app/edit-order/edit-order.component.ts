@@ -58,10 +58,13 @@ export class EditOrderComponent {
   
   showImagePreview = false;
   
-  selectedTab = 'Semi';
   
+  setSizes: any[] = [];
   semiSizes: any[] = [];
   caseSizes: any[] = [];
+
+  selectedTab = 'Set';
+
   
   showCutPopup = false;
   
@@ -96,14 +99,6 @@ export class EditOrderComponent {
       private route:ActivatedRoute
     ) {}
   
-    @HostListener('window:popstate', ['$event'])
-  onPopState(event: any) {
-  
-    if (this.hasUnsavedChanges()) {
-      history.pushState(null, '', location.href); // stop navigation
-      this.showUnsavedPopup = true;
-    }
-  }
   
   ngOnInit() {
 
@@ -114,6 +109,7 @@ export class EditOrderComponent {
   const cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
 
   this.editItem = cart[this.editIndex];
+  console.log(this.editItem,"editItem ")
 
   if (!this.editItem) {
     this.router.navigate(['/cart']);
@@ -137,10 +133,18 @@ export class EditOrderComponent {
 
   this.service.getArtColor(payload).subscribe((res: any) => {
 
+    if (res.IMAGE_NAME) {
+          this.productImage = `https://mmarkonline.com/artimages/${res.IMAGE_NAME}`;
+  } else {
+          this.productImage = 'https://mmarkonline.com/artimages/NoImage.jpg';
+   }
+
     this.colors = res.Colors.map((x: any) => ({
       name: x.Color,
       hex: this.getColorHex(x.Color)
     }));
+
+    
 
     this.selectedColorIndex =
       this.colors.findIndex(c => c.name === this.editItem.color);
@@ -149,31 +153,34 @@ export class EditOrderComponent {
       ArtNo: this.artSearch,
       CategoryID: this.selectedCategory,
       Color: this.editItem.color
-    });
+    }, () => {
 
-    setTimeout(() => {
+      // ⭐ runs only after sizes loaded
       this.patchQuantities();
-    }, 300);
+    });
   });
 }
 
   patchQuantities() {
 
-  // Semi
-  this.editItem.semiSizes.forEach((s: any) => {
-
-    const row = this.semiSizes.find(x => x.size === s.size);
-
+  // SET
+  this.editItem.setSizes?.forEach((s: any) => {
+    const row = this.setSizes.find(x => x.size === s.size);
     if (row) {
       row.qty = s.qty;
+      row.Combination = s.combination || '';
     }
   });
 
-  // Case
-  this.editItem.caseSizes.forEach((c: any) => {
+  // SEMI
+  this.editItem.semiSizes?.forEach((s: any) => {
+    const row = this.semiSizes.find(x => x.size === s.size);
+    if (row) row.qty = s.qty;
+  });
 
+  // CASE
+  this.editItem.caseSizes?.forEach((c: any) => {
     const row = this.caseSizes.find(x => x.size === c.size);
-
     if (row) {
       row.qty = c.qty;
       row.Combination = c.combination || '';
@@ -182,16 +189,22 @@ export class EditOrderComponent {
 }
 
 
+
   updateCart() {
 
   this.isSaving = true;
 
   const updatedItem = {
-    ...this.editItem,
-    semiSizes: this.semiSizes.filter(x => x.qty > 0),
-    caseSizes: this.caseSizes.filter(x => x.qty > 0),
-    totalQty: this.totalQuantity
-  };
+  ...this.editItem,
+
+  setSizes: this.setSizes.filter(x => x.qty > 0),
+
+  semiSizes: this.semiSizes.filter(x => x.qty > 0),
+
+  caseSizes: this.caseSizes.filter(x => x.qty > 0),
+
+  totalQty: this.totalQuantity
+};
 
   const cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
 
@@ -389,37 +402,42 @@ export class EditOrderComponent {
   }
   
   
-    loadPacking(payload: any) {
-  
-    this.service.getArtNoDetails(payload).subscribe((res: any) => {
-  
-      if (res.flag === "1") {
-  
-        // ✅ SET PRODUCT IMAGE
-        if (res.IMAGE_NAME) {
-          this.productImage = `https://mmarkonline.com/artimages/${res.IMAGE_NAME}`;
-        } else {
-          this.productImage = 'https://mmarkonline.com/artimages/NoImage.jpg';
-        }
-  
-        this.semiSizes = res.Semi.map((x: any) => ({
-          size: x.Size,
-          qty: 0,
-          ID : x.ID
-        }));
-  
-        this.caseSizes = res.Case.map((x: any) => ({
-          size: x.Description,
-          qty: 0,
-          isCut: x.IsCutSize,
-          Combination : x.Combination,
-          PairQty : x.PairQty,
-          sizes: x.Sizes,
-          packingID : x.PackingID
-        }));
-      }
-    });
-  }
+    loadPacking(payload: any, callback?: () => void) {
+
+  this.service.getArtNoDetails(payload).subscribe((res: any) => {
+
+    if (res.flag === "1") {
+
+      this.semiSizes = res.Semi.map((x: any) => ({
+        size: x.Size,
+        qty: 0,
+        ID: x.ID
+      }));
+
+      this.caseSizes = res.Case.map((x: any) => ({
+        size: x.Description,
+        qty: 0,
+        Combination: x.Combination,
+        PairQty: x.PairQty,
+        sizes: x.Sizes,
+        packingID: x.PackingID
+      }));
+
+      this.setSizes = (res.Set || []).map((x: any) => ({
+      size: x.Description,
+      qty: 0,
+      Combination: x.Combination,
+      PairQty: x.PairQty,
+      packingID: x.PackingID
+    }));
+
+
+      // ⭐ NOW SAFE TO PATCH
+      callback?.();
+    }
+  });
+}
+
   
   
     getColorHex(color: string): string {
@@ -483,12 +501,6 @@ export class EditOrderComponent {
   
     goBack() {
   
-    if (this.hasUnsavedChanges()) {
-      this.showUnsavedPopup = true;
-      this.pendingNavigation = true;
-      return;
-    }
-  
     this.router.navigate(['/home']);
   }
   
@@ -546,11 +558,18 @@ export class EditOrderComponent {
   // }
   
   get displayedSizes() {
-    if (this.selectedTab === 'Semi') {
-      return this.semiSizes || [];
-    }
-    return this.caseSizes || [];
+
+  if (this.selectedTab === 'Set') {
+    return this.setSizes || [];
   }
+
+  if (this.selectedTab === 'Semi') {
+    return this.semiSizes || [];
+  }
+
+  return this.caseSizes || [];
+}
+
   
   increaseRowQty(i: number) {
     this.displayedSizes[i].qty++;
@@ -618,8 +637,9 @@ export class EditOrderComponent {
   
   
   get totalQuantity() {
-    return this.displayedSizes.reduce((a, b) => a + b.qty, 0);
-  }
+  return this.displayedSizes.reduce((a, b) => a + b.qty, 0);
+}
+
   
   handleCutPlus(row: any) {
   
@@ -826,12 +846,7 @@ export class EditOrderComponent {
   
   }
   
-  //detect unsaved data when click back button
-  hasUnsavedChanges(): boolean {
-    const semi = this.semiSizes.some(x => x.qty > 0);
-    const caseSizes = this.caseSizes.some(x => x.qty > 0);
-    return semi || caseSizes;
-  }
+  
   
   cancelNavigation() {
     this.showUnsavedPopup = false;
