@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   background: #f5f7f8;
-  padding-bottom: 80px; 
+  padding-bottom: 110px; 
 }
 
 .cart-header-bar {
@@ -119,10 +119,11 @@
 
 .submit-bar {
   position: fixed;
-  bottom: 50px;
+  bottom: 0px;
   left: 0;
   width: 100%;
   padding: 10px 15px;
+  padding-bottom: 50px;
   background: white;
 }
 
