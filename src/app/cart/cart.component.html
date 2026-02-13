@@ -1,9 +1,11 @@
 <div class="cart-wrapper">
+  
 
   <div class="cart-header-bar">
   <i class="fa-solid fa-angle-left back-icon" (click)="goBack()"></i>
   <span class="cart-title">Cart</span>
 </div>
+<div class="cart-item-container">
 
   <div class="empty-cart" *ngIf="!cartItems.length">
 
@@ -99,6 +101,8 @@
 
 </div>
 
+</div>
+
 
 
   <div class="submit-bar" *ngIf="cartItems.length">
@@ -148,6 +152,10 @@
     </div>
 
   </div>
+</div>
+
+<div class="loader-overlay" *ngIf="isSaving">
+  <i class="fa-solid fa-spinner fa-spin"></i>
 </div>
 
 
