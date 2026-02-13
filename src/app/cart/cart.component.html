@@ -100,8 +100,32 @@
 </div>
 
 
+
   <div class="submit-bar" *ngIf="cartItems.length">
     <button class="submit-btn" (click)="submitOrder()" [disabled]="isSaving">SUBMIT</button>
   </div>
+
+
+  <!-- Remove Cart Item Popup -->
+<div class="logout-overlay" *ngIf="showRemoveConfirm">
+  <div class="logout-dialog">
+
+    <p>
+      Remove this item from cart?
+    </p>
+
+    <div class="logout-actions">
+      <button class="no-btn" (click)="cancelRemove()">
+        No
+      </button>
+
+      <button class="yes-btn" (click)="confirmRemove()">
+        Yes
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
 </div>

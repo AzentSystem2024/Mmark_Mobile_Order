@@ -223,3 +223,47 @@
   font-size: 13px;
   color: #999;
 }
+
+
+.logout-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.logout-dialog {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.logout-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.logout-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+}
+
+.no-btn {
+  background: #eee;
+}
+
+.yes-btn {
+  background: #d32f2f;
+  color: white;
+}
+

@@ -17,6 +17,9 @@ export class CartComponent {
   isSaving = false;
   userType:any;
 
+  showRemoveConfirm = false;
+  removeIndex: number | null = null;
+
   constructor(
     private service:MyserviceService, 
     private toastr: ToastrService,
@@ -32,12 +35,27 @@ export class CartComponent {
 }
 
   removeItem(index: number) {
-
-  this.cartItems.splice(index, 1);
-
-  // Update sessionStorage
-  sessionStorage.setItem('cart', JSON.stringify(this.cartItems));
+  this.removeIndex = index;
+  this.showRemoveConfirm = true;
 }
+
+confirmRemove() {
+
+  if (this.removeIndex === null) return;
+
+  this.cartItems.splice(this.removeIndex, 1);
+
+  sessionStorage.setItem('cart', JSON.stringify(this.cartItems));
+
+  this.showRemoveConfirm = false;
+  this.removeIndex = null;
+}
+
+cancelRemove() {
+  this.showRemoveConfirm = false;
+  this.removeIndex = null;
+}
+
 
   getColorHex(color: string): string {
 
