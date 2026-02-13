@@ -20,7 +20,7 @@
       Retailer name is required
     </span>
 
-    <div class="dropdown-wrapper dropdown-box">
+    <div class="dropdown-wrapper dropdown-box" (click)="$event.stopPropagation()">
       <input
         #dealerInput
         type="text"
@@ -28,6 +28,7 @@
         placeholder="Dealer"
         [(ngModel)]="selected_dealer"
         (input)="filterDealers()"
+         (focus)="openDealerDropdown()"
         (ngModelChange)="dealererror = false"
       />
       <span *ngIf="dealererror" style="color: red; font-size: 12px">
@@ -55,7 +56,7 @@
     </span>
 
     <div class="row-flex">
-      <div class="dropdown-wrapper dropdown-box">
+      <div class="dropdown-wrapper dropdown-box" (click)="$event.stopPropagation()">
         <input
           #stateinput
           type="text"
@@ -63,6 +64,7 @@
           placeholder="State"
           [(ngModel)]="selected_State"
           (input)="filterState()"
+        (focus)="openStateDrp()"
         />
 
         <div class="dropdown-list" *ngIf="showStateDrp">
@@ -75,7 +77,7 @@
           </div>
         </div>
       </div>
-      <div class="dropdown-wrapper dropdown-box">
+      <div class="dropdown-wrapper dropdown-box" (click)="$event.stopPropagation()">
         <input
           #Districtinput
           type="text"
@@ -83,6 +85,7 @@
           placeholder="District"
           [(ngModel)]="selected_District"
           (input)="filterDistrict()"
+           (focus)="openDistrictDrp()"
         />
 
         <div class="dropdown-list" *ngIf="showDistrictDrp">
@@ -224,13 +227,14 @@
       >
         Passwords do not match
       </div>
+       <div class="input-Number">
 
-      <!-- <button class="save-btn" (click)="saveRetailer()">SAVE RETAILER</button> -->
-      <div class="add-cart-bar">
-        <button class="add-cart-btn" (click)="saveRetailer()">
+      <button class="save-btn" (click)="saveRetailer()">SAVE RETAILER</button>
+       </div>
+        <!-- <button class="add-cart-btn" (click)="saveRetailer()">
           SAVE RETAILER
         </button>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
