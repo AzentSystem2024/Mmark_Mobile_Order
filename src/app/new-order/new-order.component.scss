@@ -273,11 +273,12 @@
 
 .add-cart-bar {
   position: fixed;
-  bottom: 50px;
+  bottom: 0px;
   left: 0;
   width: 100%;
   background: white;
   padding: 10px 15px;
+  padding-bottom: 50px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -294,7 +295,7 @@
 
 /* Prevent content hidden under button */
 .home-wrapper {
-  padding-bottom: 80px;
+  padding-bottom: 110px;
 }
 
 .tab-section {
@@ -406,9 +407,9 @@
   background: #f4fbff;
   border-radius: 6px;
   margin-top: 8px;
-  max-height: 450px;   // adjust for mobile
+  // max-height: 450px;   // adjust for mobile
   overflow-y: auto;
-  margin-bottom: 60px;
+  // margin-bottom: 60px;
 }
 
 .table-body {
