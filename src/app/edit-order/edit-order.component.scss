@@ -677,6 +677,56 @@
 }
 
 
+.linkedin-snack {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top)); /* 👈 safe for notch */
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  min-width: 260px;
+  max-width: 92%;
+  padding: 12px 18px;
+  border-radius: 10px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  z-index: 99999;
+
+  animation: snackInTop 0.25s ease forwards;
+}
+
+.linkedin-snack.success {
+  background: #057642; /* LinkedIn green */
+}
+
+.linkedin-snack.error {
+  background: #d32f2f;
+}
+
+.snack-text {
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ⬇️ Slide DOWN animation */
+@keyframes snackInTop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+
 
 
 

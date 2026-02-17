@@ -27,6 +27,11 @@ export class CartComponent {
 
   translateX: { [key: number]: number } = {};
 
+  showSnack = false;
+  snackMessage = '';
+  snackType: 'success' | 'error' = 'success';
+  snackTimer: any;
+
   constructor(
     private service:MyserviceService, 
     private toastr: ToastrService,
@@ -314,22 +319,45 @@ submitOrder() {
       this.cartItems = [];
 
       // ✅ toast success
-      this.toastr.success(res.message || 'Order submitted successfully');
+      // this.toastr.success(res.message || 'Order submitted successfully');
+      this.showSnackBar(
+        res.message || 'Order submitted successfully',
+        'success'
+      );
       this.isSaving = false;
 
-      this.routes.navigate(['/home']);
+      // ✅ show snack FIRST
+      this.showSnackBar(
+        res.message || 'Order submitted successfully',
+        'success'
+      );
+
+      this.isSaving = false;
+
+      // ⏳ navigate AFTER snack duration
+      setTimeout(() => {
+        this.routes.navigate(['/home']);
+      }, 2500);
 
     } else {
 
       // ❌ backend returned failure
-      this.toastr.error(res?.message || 'Failed to submit order');
+      // this.toastr.error(res?.message || 'Failed to submit order');
+      this.showSnackBar(
+        res.message || 'Failed to submit order',
+        'error'
+      );
       this.isSaving = false;
     }
 
   }, err => {
 
     // ❌ API/network error
-    this.toastr.error('Failed to submit order');
+    // this.toastr.error('Failed to submit order');
+    this.showSnackBar(
+        'Failed to submit order',
+        'error'
+      );
     this.isSaving = false;
 
   });
@@ -505,23 +533,57 @@ buildPayload() {
   };
 }
 
-parseCombination(str:string) {
+// parseCombination(str:string) {
+
+//   if (!str) return [];
+
+//   return str.split(',')
+//     .map(x => {
+
+//       const parts = x.split('*');
+
+//       return {
+//         size: parts[0]?.trim(),
+//         quantity: Number(parts[1] || 0)
+//       };
+
+//     })
+//     .filter(x => x.quantity > 0);   // 👈 DOUBLE SAFETY
+// }
+
+parseCombination(str: string): { size: string; quantity: number }[] {
 
   if (!str) return [];
 
-  return str.split(',')
-    .map(x => {
+  return str
+    .split(',')
+    .map((raw: string): { size: string; quantity: number } => {
 
-      const parts = x.split('*');
+      const cleaned = raw.replace(/"/g, '').trim();
+
+      // 🔒 CUT SIZE ONLY → must contain '*'
+      if (!cleaned.includes('*')) {
+        return { size: '', quantity: 0 };
+      }
+
+      const parts = cleaned.split('*');
+
+      const size = parts[0]?.trim();
+      const qty = Number(parts[1]?.trim() || 0);
 
       return {
-        size: parts[0]?.trim(),
-        quantity: Number(parts[1] || 0)
+        size,
+        quantity: qty
       };
-
     })
-    .filter(x => x.quantity > 0);   // 👈 DOUBLE SAFETY
+    .filter(
+      (x: { size: string; quantity: number }) =>
+        x.size !== '' && x.quantity > 0
+    );
 }
+
+
+
 
 
 editItem(index: number) {
@@ -567,6 +629,24 @@ getLayoutClass(item: any): string {
   if (cols === 1) return 'one-col-right';
   if (cols === 2) return 'two-col-right';
   return 'three-col';
+}
+
+
+
+showSnackBar(
+  message: string,
+  type: 'success' | 'error' = 'success',
+  duration = 2500
+) {
+  this.snackMessage = message;
+  this.snackType = type;
+  this.showSnack = true;
+
+  clearTimeout(this.snackTimer);
+
+  this.snackTimer = setTimeout(() => {
+    this.showSnack = false;
+  }, duration);
 }
 
 

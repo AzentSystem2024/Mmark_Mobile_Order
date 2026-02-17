@@ -292,7 +292,7 @@ getColumnClass(item: any): string {
 
   if (count === 1) return 'one-col-right';
   if (count === 2) return 'two-col-right';
-  return 'three-col-right';
+  return 'three-col'; // 🔥 FIX
 }
 
 }

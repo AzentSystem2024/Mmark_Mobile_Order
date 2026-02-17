@@ -343,3 +343,15 @@
 </div>
 
 </div>
+
+<div
+  class="linkedin-snack"
+  *ngIf="showSnack"
+  [class.success]="snackType === 'success'"
+  [class.error]="snackType === 'error'"
+>
+  <span class="snack-text">{{ snackMessage }}</span>
+</div>
+
+
+

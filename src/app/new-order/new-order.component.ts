@@ -98,6 +98,21 @@ previousArtNo: string = '';
 previousSelectedCategory :string = '';
 
 
+colorStateMap: {
+  [key: string]: {
+    setSizes: any[];
+    semiSizes: any[];
+    caseSizes: any[];
+    productImage: string;
+  }
+} = {};
+
+  showSnack = false;
+  snackMessage = '';
+  snackType: 'success' | 'error' = 'success';
+  snackTimer: any;
+
+
   constructor(private router: Router,
     private service:MyserviceService,
     private toastr: ToastrService
@@ -659,10 +674,38 @@ selectBackendColor(i: number) {
 
   if (this.selectedColorIndex === i) return;
 
-  this.handleChangeWithConfirmation(() => {
-    this.applyColorChange(i);
-  });
+
+
+    // 🔐 save previous color data
+    this.saveCurrentColorState();
+
+    this.selectedColorIndex = i;
+
+    const colorName = this.colors[i].name;
+    const key = this.getColorKey(this.artSearch, colorName);
+
+    // ✅ If already edited before → restore
+    if (this.colorStateMap[key]) {
+      const saved = this.colorStateMap[key];
+
+      this.setSizes = this.clone(saved.setSizes);
+      this.semiSizes = this.clone(saved.semiSizes);
+      this.caseSizes = this.clone(saved.caseSizes);
+      this.productImage = saved.productImage;
+      return;
+    }
+
+    // ❌ first time this color → load fresh
+    const payload = {
+      ArtNo: this.artSearch,
+      CategoryID: this.selectedCategory,
+      Color: colorName
+    };
+
+    this.loadPacking(payload);
+
 }
+
 
 applyColorChange(i: number) {
 
@@ -728,6 +771,7 @@ get displayedSizes() {
 
 increaseRowQty(i: number) {
   this.displayedSizes[i].qty++;
+  this.saveCurrentColorState();
 }
 
 
@@ -772,6 +816,7 @@ validateRowQty(row: any) {
     row.qty = 0;
     this.openCutPopup(row);
   }
+  this.saveCurrentColorState();
 }
 
 
@@ -788,6 +833,7 @@ decreaseRowQty(i: number) {
       this.displayedSizes[i].Combination = '';
     }
   }
+  this.saveCurrentColorState();
 }
 
 
@@ -881,114 +927,147 @@ saveCutSize() {
   const cutTotal = this.cutSizes.reduce((a, b) => a + b.qty, 0);
   const requiredQty = Number(this.activeCutRow?.PairQty || 0);
 
-  // validation
   if (cutTotal !== requiredQty) {
     this.cutError = `Total must be exactly ${requiredQty}`;
     return;
   }
 
-  this.cutError = '';
-
-  // 1️⃣ Build combination string
-  // Example: [{6,2},{7,1}] => "6,6,7"
   const comboArr: string[] = [];
 
   this.cutSizes.forEach(x => {
-  if (x.qty > 0) {
-    comboArr.push(`${x.size}*${x.qty}`);
+    if (x.qty > 0) {
+      comboArr.push(`${x.size}*${x.qty}`);
     }
   });
 
   const combination = comboArr.join(', ');
 
-  // 2️⃣ Write back to main Cut row
   if (this.activeCutRow) {
     this.activeCutRow.qty += 1;
-    this.activeCutRow.Combination = combination;   // 👈 THIS LINE
+    this.activeCutRow.Combination = combination;
   }
+
+  // 🔥🔥 THIS LINE WAS MISSING 🔥🔥
+  this.saveCurrentColorState();
 
   this.closeCutPopup();
 }
+
 
   
 addToCart() {
 
   this.isSaving = true;
 
+  if (!this.artSearch) {
+    this.toastr.error('Please select Art');
+    this.isSaving = false;
+    return;
+  }
+
+  // 🔐 Save current color state before add
+  this.saveCurrentColorState();
 
   const selectedCategoryObj = this.categories.find(
-  x => x.ID === Number(this.selectedCategory)
-);
+    x => x.ID === Number(this.selectedCategory)
+  );
 
-const selectedSemi = this.semiSizes.filter(x => x.qty > 0);
-const selectedCase = this.caseSizes.filter(x => x.qty > 0);
-const selectedSet = this.setSizes.filter(x => x.qty > 0);
-console.log(selectedCase,"selectedCase")
-
-if (!selectedSemi.length && !selectedCase.length && !selectedSet.length) {
-  this.toastr.error('Please add quantity');
-  this.isSaving = false;
-  return;
-}
-
-if (!this.selectedColor) {
-  this.toastr.error('Please select color');
-  this.isSaving = false;
-  return;
-}
-
-  const cartItem = {
-    artNo: this.artSearch,
-    categoryName: selectedCategoryObj?.DESCRIPTION || '',
-    catgoryID : Number(this.selectedCategory),
-    color: this.selectedColor?.name || '',
-    totalQty: this.totalQuantity,
-    articleImage : this.productImage,
-
-    setSizes: selectedSet.map(x => ({
-    size: x.size,
-    qty: x.qty,
-    combination: x.Combination || '',
-    packingID: x.packingID
-  })),
-
-    semiSizes: selectedSemi.map(x => ({
-      size: x.size,
-      qty: x.qty,
-      ID:x.ID
-    })),
-
-    caseSizes: selectedCase.map(x => ({
-      size: x.size,
-      qty: x.qty,
-      combination: x.Combination || '',
-      packingID:x.packingID
-    }))
-  };
-
-  console.log("cart item",cartItem)
-
-  // Existing cart
   const cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
-  cart.push(cartItem);
-  sessionStorage.setItem('cart', JSON.stringify(cart));
 
-  // ✅ Update cart count
+  const finalItemsToAdd: any[] = [];   // 👈 collect final data
+
+  // 🔍 CHECK: is there ANY quantity in ANY color?
+  const hasAnyQty = Object.keys(this.colorStateMap)
+    .filter(k => k.startsWith(this.artSearch + '|'))
+    .some(key => {
+      const d = this.colorStateMap[key];
+      return (
+        d.setSizes.some(x => x.qty > 0) ||
+        d.semiSizes.some(x => x.qty > 0) ||
+        d.caseSizes.some(x => x.qty > 0)
+      );
+    });
+
+  // ❌ NO QTY → STOP HERE
+  if (!hasAnyQty) {
+    this.toastr.error('Please add quantity');
+    this.isSaving = false;
+    return;
+  }
+
+  Object.keys(this.colorStateMap)
+    .filter(k => k.startsWith(this.artSearch + '|'))
+    .forEach(key => {
+
+      const colorName = key.split('|')[1];
+      const data = this.colorStateMap[key];
+
+      const hasQty =
+        data.setSizes.some(x => x.qty > 0) ||
+        data.semiSizes.some(x => x.qty > 0) ||
+        data.caseSizes.some(x => x.qty > 0);
+
+      if (!hasQty) return;
+
+      const cartItem = {
+        artNo: this.artSearch,
+        categoryName: selectedCategoryObj?.DESCRIPTION || '',
+        catgoryID: Number(this.selectedCategory),
+        color: colorName,
+        articleImage: data.productImage,
+
+        setSizes: data.setSizes
+          .filter(x => x.qty > 0)
+          .map(x => ({
+            size: x.size,
+            qty: x.qty,
+            combination: x.Combination || '',   // ✅ explicitly log
+            packingID: x.packingID
+          })),
+
+        semiSizes: data.semiSizes
+          .filter(x => x.qty > 0)
+          .map(x => ({
+            size: x.size,
+            qty: x.qty,
+            ID: x.ID
+          })),
+
+        caseSizes: data.caseSizes
+          .filter(x => x.qty > 0)
+          .map(x => ({
+            size: x.size,
+            qty: x.qty,
+            combination: x.Combination || '',   // ✅ explicitly log
+            packingID: x.packingID
+          }))
+      };
+
+      // 🔥 LOG EACH COLOR ITEM
+
+      finalItemsToAdd.push(cartItem);
+      cart.push(cartItem);
+    });
+
+  // 🔥 LOG ALL ITEMS TO BE ADDED
+
+  sessionStorage.setItem('cart', JSON.stringify(cart));
   this.cartCount = cart.length;
 
-  // ✅ Toast
-  this.toastr.success('Item added to cart');
+  // this.toastr.success('Items added to cart');
+  this.showSnackBar(
+    'Items added to cart',
+    'success'
+  );
 
-  // ✅ Clear current screen
+  // 🧹 clear everything
+  this.colorStateMap = {};
   this.clearSelection();
+
   this.isSaving = false;
-
-  // ✅ Move focus to Art No
-  setTimeout(() => {
-    this.artInput?.nativeElement?.focus();
-  }, 100);
-
 }
+
+
 
 clearSelection() {
 
@@ -1094,6 +1173,56 @@ performCategoryChange() {
     this.artInput?.nativeElement.focus();
   }, 0);
 }
+
+//hepers for colorartnokey
+getColorKey(art: string, color: string): string {
+  return `${art}|${color}`;
+}
+
+clone<T>(data: T): T {
+  return JSON.parse(JSON.stringify(data));
+}
+
+//save current color state before saving 
+saveCurrentColorState() {
+  if (!this.artSearch || !this.selectedColor) return;
+
+  const key = this.getColorKey(
+    this.artSearch,
+    this.selectedColor.name
+  );
+
+  this.colorStateMap[key] = {
+    setSizes: this.clone(this.setSizes),
+    semiSizes: this.clone(this.semiSizes),
+    caseSizes: this.clone(this.caseSizes),
+    productImage: this.productImage
+  };
+}
+
+
+
+
+  showSnackBar(
+  message: string,
+  type: 'success' | 'error' = 'success',
+  duration = 2500
+) {
+  this.snackMessage = message;
+  this.snackType = type;
+  this.showSnack = true;
+
+  clearTimeout(this.snackTimer);
+
+  this.snackTimer = setTimeout(() => {
+    this.showSnack = false;
+  }, duration);
+}
+
+
+
+
+
 
 
 

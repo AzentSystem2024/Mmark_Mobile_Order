@@ -94,6 +94,11 @@ export class EditOrderComponent {
 
   showSetTab = false;
   showCaseTab = false;
+
+  showSnack = false;
+  snackMessage = '';
+  snackType: 'success' | 'error' = 'success';
+  snackTimer: any;
   
   
     constructor(private router: Router,
@@ -318,7 +323,13 @@ resetScreen() {
 
   sessionStorage.setItem('cart', JSON.stringify(cart));
 
-  this.toastr.success('Cart updated successfully');
+  // this.toastr.success('Cart updated successfully');
+
+  this.showSnackBar(
+        'Cart updated successfully',
+        'success'
+      );
+
   this.router.navigate(['/cart']);
 
   this.isSaving = false;
@@ -862,69 +873,6 @@ resetScreen() {
     this.closeCutPopup();
   }
   
-    
-  addToCart() {
-  
-    this.isSaving = true;
-  
-  
-    const selectedCategoryObj = this.categories.find(
-    x => x.ID === Number(this.selectedCategory)
-  );
-  
-  const selectedSemi = this.semiSizes.filter(x => x.qty > 0);
-  const selectedCase = this.caseSizes.filter(x => x.qty > 0);
-  console.log(selectedCase,"selectedCase")
-  
-  if (!selectedSemi.length && !selectedCase.length) {
-    this.toastr.error('Please add quantity');
-    this.isSaving = false;
-    return;
-  }
-  
-  if (!this.selectedColor) {
-    this.toastr.error('Please select color');
-    this.isSaving = false;
-    return;
-  }
-  
-    const cartItem = {
-      artNo: this.artSearch,
-      categoryName: selectedCategoryObj?.DESCRIPTION || '',
-      catgoryID : Number(this.selectedCategory),
-      color: this.selectedColor?.name || '',
-      totalQty: this.totalQuantity,
-  
-      semiSizes: selectedSemi.map(x => ({
-        size: x.size,
-        qty: x.qty,
-        ID:x.ID
-      })),
-  
-      caseSizes: selectedCase.map(x => ({
-        size: x.size,
-        qty: x.qty,
-        combination: x.Combination || '',
-        packingID:x.packingID
-      }))
-    };
-  
-    // Existing cart
-    const cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
-    cart.push(cartItem);
-    sessionStorage.setItem('cart', JSON.stringify(cart));
-  
-    // ✅ Update cart count
-    this.cartCount = cart.length;
-  
-    // ✅ Toast
-    this.toastr.success('Item added to cart');
-  
-    // ✅ Clear current screen
-    this.clearSelection();
-    this.isSaving = false;
-  }
-  
   clearSelection() {
   
     // Category + Art
@@ -963,5 +911,21 @@ resetScreen() {
     this.router.navigate(['/home']);
   }
   
+
+  showSnackBar(
+  message: string,
+  type: 'success' | 'error' = 'success',
+  duration = 2500
+) {
+  this.snackMessage = message;
+  this.snackType = type;
+  this.showSnack = true;
+
+  clearTimeout(this.snackTimer);
+
+  this.snackTimer = setTimeout(() => {
+    this.showSnack = false;
+  }, duration);
+}
   
 }

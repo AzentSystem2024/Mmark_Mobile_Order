@@ -27,6 +27,11 @@ export class LoginPageComponent {
   showSemiTab = true;
   isLogin = false;
 
+  showSnack = false;
+  snackMessage = '';
+  snackType: 'success' | 'error' = 'success';
+  snackTimer: any;
+
   constructor(
     private fb: FormBuilder,
     private dataservice: MyserviceService,
@@ -71,7 +76,11 @@ if(!loginDetails.PASSWORD)
         {
        sessionStorage.setItem('SessionID', JSON.stringify(res.SessionID));
        sessionStorage.setItem('LogData', JSON.stringify(res));
-        this.toastr.success("User logged in successfully");
+        // this.toastr.success("User logged in successfully");
+        this.showSnackBar(
+          'User logged in successfully',
+          'success'
+        );
         this.isLoggingIn = true;
         setTimeout(() => {
           this.routes.navigate(['/home']);
@@ -81,7 +90,12 @@ if(!loginDetails.PASSWORD)
 
         }
         else{
-        this.toastr.error("Incorrect login name or password");
+        // this.toastr.error("Incorrect login name or password");
+
+        this.showSnackBar(
+          'Incorrect login name or password',
+          'error'
+        );
         this.isLogin = false;
 
         }
@@ -101,4 +115,20 @@ if(!loginDetails.PASSWORD)
   OnchangePassword(){
     this.PasswordError=false;
   }
+
+  showSnackBar(
+  message: string,
+  type: 'success' | 'error' = 'success',
+  duration = 2500
+) {
+  this.snackMessage = message;
+  this.snackType = type;
+  this.showSnack = true;
+
+  clearTimeout(this.snackTimer);
+
+  this.snackTimer = setTimeout(() => {
+    this.showSnack = false;
+  }, duration);
+}
 }
