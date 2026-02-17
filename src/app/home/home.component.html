@@ -84,36 +84,49 @@
 
     <!-- ================= DEALER DROPDOWN ================= -->
     <div
-      class="dropdown-wrapper dropdown-box"
-      *ngIf="showDealerRetailerSelect && selectedType === 'DEALER'"
-    >
-      <input
-        #dealerInput
-        type="text"
-        class="search-input"
-        placeholder="Search Dealer"
-        [(ngModel)]="dealerSearch"
-        (input)="filterDealers()"
-        (focus)="handleReadonlyFocus($event)"
-        [readonly]="hasCartItems()"
-      />
+    class="dropdown-wrapper dropdown-box"
+    *ngIf="showDealerRetailerSelect && selectedType === 'DEALER'"
+  >
+  <!-- 🔒 input container -->
+  <div class="input-container">
+    <input
+      #dealerInput
+      type="text"
+      class="search-input"
+      placeholder="Search Dealer"
+      [(ngModel)]="dealerSearch"
+      (input)="filterDealers()"
+      (focus)="handleReadonlyFocus($event)"
+      [readonly]="hasCartItems()"
+    />
 
-      <div class="dropdown-list" *ngIf="showDealerList">
-        <div
-          class="dropdown-item"
-          *ngFor="let d of filteredDealers"
-          (click)="selectDealer(d)"
-        >
-          {{ d.DESCRIPTION }}
-        </div>
-      </div>
+    <!-- ❌ Clear icon (fixed now) -->
+    <i
+      class="fa-solid fa-xmark clear-icon"
+      *ngIf="dealerSearch && !hasCartItems()"
+      (click)="clearDealerSearch()"
+    ></i>
+  </div>
+
+  <!-- dropdown list stays OUTSIDE input container -->
+  <div class="dropdown-list" *ngIf="showDealerList">
+    <div
+      class="dropdown-item"
+      *ngFor="let d of filteredDealers"
+      (click)="selectDealer(d)"
+    >
+      {{ d.DESCRIPTION }}
     </div>
+  </div>
+</div>
+
 
     <!-- ================= SUB DEALER DROPDOWN ================= -->
     <div
       class="dropdown-wrapper dropdown-box"
       *ngIf="showDealerRetailerSelect && selectedType === 'SUB_DEALER'"
     >
+      <div class="input-container">
       <input
         #subDealerInput
         type="text"
@@ -124,6 +137,15 @@
         (focus)="handleReadonlyFocus($event)"
         [readonly]="hasCartItems()"
       />
+
+      <!-- ❌ Clear icon (fixed now) -->
+      <i
+        class="fa-solid fa-xmark clear-icon"
+        *ngIf="subDealerSearch && !hasCartItems()"
+        (click)="clearSubDealerSearch()"
+      ></i>
+
+      </div>
 
       <div class="dropdown-list" *ngIf="showSubDealerList">
         <div
@@ -145,6 +167,7 @@
       class="dropdown-wrapper dropdown-box"
       *ngIf="showDealerRetailerSelect && selectedType === 'RETAILER'"
     >
+      <div class="input-container">
       <input
         #retailerInput
         type="text"
@@ -155,6 +178,15 @@
         (focus)="handleReadonlyFocus($event)"
         [readonly]="hasCartItems()"
       />
+
+      <!-- ❌ Clear icon (fixed now) -->
+      <i
+        class="fa-solid fa-xmark clear-icon"
+        *ngIf="retailerSearch && !hasCartItems()"
+        (click)="clearRetailerSearch()"
+      ></i>
+
+      </div>
 
       <div class="dropdown-list" *ngIf="showRetailerList">
         <div

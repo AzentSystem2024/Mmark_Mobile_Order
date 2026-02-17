@@ -21,6 +21,12 @@ export class CartComponent {
   removeIndex: number | null = null;
   showSubmitConfirm = false;
 
+  startX = 0;
+  currentX = 0;
+  swipeIndex: number | null = null;
+
+  translateX: { [key: number]: number } = {};
+
   constructor(
     private service:MyserviceService, 
     private toastr: ToastrService,
@@ -60,61 +66,218 @@ cancelRemove() {
 
   getColorHex(color: string): string {
 
-  switch (color.toUpperCase().trim()) {
+  if (!color) return '#cccccc';
 
-    case 'BLACK': return '#000000';
-    case 'BROWN': return '#8b5a2b';
-    case 'TAN': return '#d2b48c';
-    case 'WHITE': return '#ffffff';
-    case 'OFF WHITE': return '#f5f5f5';
-    case 'CREAM': return '#fffdd0';
+  const c = color.toUpperCase().trim();
 
-    case 'NAVY': return '#000080';
-    case 'BLUE': return '#1e90ff';
-    case 'SKY BLUE': return '#87ceeb';
+  switch (c) {
 
+    /* ================= BLACK / WHITE ================= */
+    case 'BLACK':
+    case 'FULL BLACK':
+    case 'PLAIN BLACK':
+      return '#000000';
+
+    case 'WHITE':
+    case 'FULL WHITE':
+      return '#ffffff';
+
+    case 'IVORY':
+    case 'CREAM':
+      return '#fffdd0';
+
+    /* ================= BLUE FAMILY ================= */
+    case 'BLUE':
+    case 'PLAIN BLUE':
+      return '#1e90ff';
+
+    case 'NAVY BLUE':
+      return '#000080';
+
+    case 'SKY BLUE':
+      return '#87ceeb';
+
+    case 'STONE BLUE':
+      return '#6a8fa5';
+
+    case 'CYAN BLUE':
+      return '#00bcd4';
+
+    case 'TEAL':
+      return '#008080';
+
+    /* ================= RED FAMILY ================= */
+    case 'RED':
+      return '#b22222';
+
+    case 'CHERRY':
+      return '#b11226';
+
+    case 'MAROON':
+      return '#800000';
+
+    case 'SALMON':
+      return '#fa8072';
+
+    /* ================= GREEN FAMILY ================= */
+    case 'GREEN':
+      return '#228b22';
+
+    case 'FOREST GREEN':
+      return '#0b6623';
+
+    case 'OLIVE':
+    case 'OLIVE GREEN':
+      return '#6b8e23';
+
+    case 'PISTA':
+      return '#93c572';
+
+    case 'MEHANDI':
+      return '#5f7f3a';
+
+    case 'D GREEN':
+      return '#006400';
+
+    /* ================= YELLOW / ORANGE ================= */
+    case 'YELLOW':
+      return '#ffd700';
+
+    case 'MUSTARD':
+      return '#ffdb58';
+
+    case 'LEMON':
+      return '#fff44f';
+
+    case 'ORANGE':
+      return '#ff8c00';
+
+    case 'PEANUT':
+      return '#c9a15b';
+
+    /* ================= GREY FAMILY ================= */
     case 'GREY':
-    case 'GRAY': return '#808080';
-    case 'DARK GREY': return '#4f4f4f';
-    case 'LIGHT GREY': return '#d3d3d3';
+    case 'GRAY':
+    case 'FULL GREY':
+    case 'STEEL GREY':
+    case 'GREY RER':       // typo handled
+      return '#808080';
 
-    case 'RED': return '#b22222';
-    case 'MAROON': return '#800000';
-    case 'BURGUNDY': return '#800020';
+    case 'MOUSE':
+      return '#9e9e9e';
 
-    case 'GREEN': return '#228b22';
-    case 'OLIVE': return '#6b8e23';
-    case 'DARK GREEN': return '#006400';
+    case 'CITADEL':
+      return '#7a7f86';
 
-    case 'YELLOW': return '#ffd700';
-    case 'MUSTARD': return '#ffdb58';
+    /* ================= BROWN / EARTH ================= */
+    case 'BROWN':
+    case 'D BROWN':
+    case 'F BROWN':
+      return '#8b5a2b';
 
-    case 'ORANGE': return '#ff8c00';
+    case 'COFFEE':
+    case 'MOCHA':
+      return '#6f4e37';
 
-    case 'PINK': return '#ff69b4';
-    case 'PEACH': return '#ffdab9';
+    case 'COFFEE BROWN':
+      return '#5a3a1e';
 
-    case 'PURPLE': return '#800080';
-    case 'VIOLET': return '#8a2be2';
+    case 'CHOCO':
+      return '#3f2a14';
 
-    case 'BEIGE': return '#f5f5dc';
-    case 'CAMEL': return '#c19a6b';
-    case 'COFFEE': return '#6f4e37';
-    case 'CHOCOLATE': return '#3f2a14';
+    case 'CAMEL':
+    case 'CHIKU':
+    case 'TAN':
+    case 'FULL TAN':
+    case 'D TAN':
+      return '#d2b48c';
 
-    case 'GOLD': return '#d4af37';
-    case 'SILVER': return '#c0c0c0';
+    case 'TAN BLACK':
+      return 'linear-gradient(45deg, #d2b48c, #000000)';
 
-    case 'MULTI':
-    case 'MULTICOLOR': return 'linear-gradient(45deg, red, yellow, green, blue)';
+    case 'MUD':
+      return '#70543e';
 
+    case 'RED BROWN':
+      return '#7a2e2e';
+
+    case 'TOFFEE':
+      return '#c68642';
+
+    /* ================= PINK / PURPLE ================= */
+    case 'PINK':
+      return '#ff69b4';
+
+    case 'PEACH':
+      return '#ffdab9';
+
+    case 'LAVENDER':
+      return '#e6e6fa';
+
+    case 'PURPLE':
+      return '#800080';
+
+    case 'VIOLET':
+      return '#8a2be2';
+
+    case 'GRAPE':
+      return '#6f2da8';
+
+    /* ================= METALLIC ================= */
+    case 'GOLD':
+      return '#d4af37';
+
+    case 'SILVER':
+      return '#c0c0c0';
+
+    case 'COPPER':
+      return '#b87333';
+
+    /* ================= SUEDE ================= */
+    case 'SUEDE BRN':
+      return '#704214';
+
+    case 'SUEDE MS':
+    case 'SUEDE MDI':
+      return '#5a5a5a';
+
+    /* ================= SPECIAL ================= */
+    case 'PEACOCK':
+      return '#006d6f';
+
+    /* ================= DUAL / MIX COLORS ================= */
+    case 'BLACK WHITE':
+    case 'WHITE BLACK':
+    case 'BEIGE BLACK':
+    case 'BLACK GREY':
+    case 'GREY BLACK':
+    case 'GREY BLUE':
+    case 'BLUE GREY':
+    case 'BLUE BLACK':
+    case 'SILVER BLACK':
+    case 'WHILE BLUE':     // typo handled
+      return 'linear-gradient(45deg, #000000, #ffffff)';
+
+    case 'GREEN RED':
+      return 'linear-gradient(45deg, #228b22, #b22222)';
+
+    case 'BLUE RED':
+      return 'linear-gradient(45deg, #1e90ff, #b22222)';
+
+    case 'GREY RED':
+      return 'linear-gradient(45deg, #808080, #b22222)';
+
+    case 'GREY YELLOW':
+      return 'linear-gradient(45deg, #808080, #ffd700)';
+
+    /* ================= FALLBACK ================= */
     default:
-      return '#cccccc'; // fallback unknown color
+      return '#cccccc';
   }
 }
 
 goBack() {
-  history.back();
+  this.routes.navigate(['/home']);
 }
 
 openSubmitConfirm() {
@@ -173,171 +336,6 @@ submitOrder() {
 
 }
 
-
-// buildPayload() {
-
-//   const order_header: any[] = [];
-//   const order_entry: any[] = [];
-//   const order_combination: any[] = [];
-
-//   let orderNo = 1;   // frontend generated
-
-//   this.cartItems.forEach(item => {
-
-//     // ================= HEADER =================
-//     order_header.push({
-//       SALESMAN_ID: 1,
-//       DEALER_ID: 2,
-//       RETAILER_ID: 3,
-//       ORDER_NO: orderNo
-//     });
-
-//     // ================= SEMI ENTRIES =================
-//     item.semiSizes.forEach((s:any) => {
-
-//       order_entry.push({
-//         ORDER_NO: orderNo,
-//         ART_NO: item.artNo,
-//         COLOR: item.color,
-//         CATEGORY_ID: item.catgoryID,
-//         PAIR_SIZE: s.ID,
-//         PACKING_ID: 0,
-//         ORDER_QTY: s.qty
-//       });
-
-//     });
-
-//     // ================= CASE ENTRIES =================
-//     item.caseSizes.forEach((c:any) => {
-
-//       order_entry.push({
-//         ORDER_NO: orderNo,
-//         ART_NO: item.artNo,
-//         COLOR: item.color,
-//         CATEGORY_ID: item.catgoryID,
-//         PAIR_SIZE: 0,
-//         PACKING_ID: c.packingID || 0,
-//         ORDER_QTY: c.qty
-//       });
-
-//       // ================= CUT COMBINATION =================
-//       if (c.combination && c.combination.trim() !== '') {
-
-//       this.parseCombination(c.combination)
-//         .filter(x => x.quantity > 0)   // 👈 CRITICAL
-//         .forEach((x:any) => {
-
-//           order_combination.push({
-//             ORDER_NO: orderNo,
-//             PACKING_ID: c.packingID || 0,
-//             SIZE: x.size,
-//             QUANTITY: x.quantity
-//           });
-
-//         });
-//     }
-
-//     });
-
-//     orderNo++;   // next cart item → next header
-//   });
-
-//   return {
-//     order_header,
-//     order_entry,
-//     order_combination
-//   };
-// }
-
-// buildPayload() {
-
-//   const login = JSON.parse(sessionStorage.getItem('LogData') || '{}');
-
-//   const SALESMAN_ID = login.USER_ID || 0;
-//   const DEALER_ID   = login.DISTRIBUTOR_ID || 0;
-//   const RETAILER_ID = login.RETAILER_ID || 0;
-
-//   const order_header: any[] = [];
-//   const order_entry: any[] = [];
-//   const order_combination: any[] = [];
-
-//   let orderNo = 1;
-
-//   this.cartItems.forEach(item => {
-
-//     let entryNo = 1;   // 👈 reset per order
-
-//     // HEADER
-//     order_header.push({
-//       SALESMAN_ID: SALESMAN_ID,
-//       DEALER_ID: DEALER_ID,
-//       RETAILER_ID: RETAILER_ID,
-//       ORDER_NO: orderNo
-//     });
-
-//     // SEMI
-//     item.semiSizes.forEach((s: any) => {
-
-//       order_entry.push({
-//         ORDER_NO: orderNo,
-//         ENTRY_NO: entryNo,
-//         ART_NO: item.artNo,
-//         COLOR: item.color,
-//         CATEGORY_ID: item.catgoryID,
-//         PAIR_SIZE: s.ID,
-//         PACKING_ID: 0,
-//         ORDER_QTY: s.qty
-//       });
-
-//       entryNo++;
-//     });
-
-//     // CASE
-//     item.caseSizes.forEach((c: any) => {
-
-//       const currentEntryNo = entryNo;
-
-//       order_entry.push({
-//         ORDER_NO: orderNo,
-//         ENTRY_NO: currentEntryNo,
-//         ART_NO: item.artNo,
-//         COLOR: item.color,
-//         CATEGORY_ID: item.catgoryID,
-//         PAIR_SIZE: 0,
-//         PACKING_ID: c.packingID || 0,
-//         ORDER_QTY: c.qty
-//       });
-
-//       // CUT combinations
-//       if (c.combination?.trim()) {
-
-//         this.parseCombination(c.combination)
-//           .filter(x => x.quantity > 0)
-//           .forEach((x: any) => {
-
-//             order_combination.push({
-//               ORDER_NO: orderNo,
-//               ENTRY_NO: currentEntryNo,   // 👈 KEY LINK
-//               PACKING_ID: c.packingID || 0,
-//               SIZE: x.size,
-//               QUANTITY: x.quantity
-//             });
-
-//           });
-//       }
-
-//       entryNo++;
-//     });
-
-//     orderNo++;
-//   });
-
-//   return {
-//     order_header,
-//     order_entry,
-//     order_combination
-//   };
-// }
 
 
 buildPayload() {
@@ -550,6 +548,25 @@ getCaseTotal(item: any): number {
     (sum: number, x: any) => sum + (x.qty || 0),
     0
   ) || 0;
+}
+
+
+getVisibleColumns(item: any): number {
+  let count = 0;
+
+  if (item.setSizes?.length) count++;
+  if (this.userType !== 4 && item.semiSizes?.length) count++;
+  if (item.caseSizes?.length) count++;
+
+  return count;
+}
+
+getLayoutClass(item: any): string {
+  const cols = this.getVisibleColumns(item);
+
+  if (cols === 1) return 'one-col-right';
+  if (cols === 2) return 'two-col-right';
+  return 'three-col';
 }
 
 

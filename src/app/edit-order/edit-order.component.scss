@@ -3,11 +3,10 @@
 }
 
 .home-wrapper {
-  height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  padding: 20px;
+  padding: 20px 20px 90px 20px; /* bottom space for button */
 }
 
 /* HEADER */
@@ -23,11 +22,12 @@
 
 .header-title {
   flex: 1;
-  text-align: center;
+  text-align: left;
 }
 
 .retailer {
   font-weight: 600;
+  margin-left: 10px;
 }
 
 .dealer {
@@ -254,26 +254,32 @@
 }
 
 .color-dot {
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
   box-sizing: border-box;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
 }
 
 .color-dot.active {
-  border-color: #35b5de;   /* blue ring */
+  width: 38px;
+  height: 38px;
+  border-color: #35b5de;
+  transform: scale(1.15);   // 👈 slight zoom
+  box-shadow: 0 4px 10px rgba(53, 181, 222, 0.4);  // 👈 soft glow
 }
-
 
 .add-cart-bar {
   position: fixed;
-  bottom: 0;
+  bottom: 0px;
   left: 0;
   width: 100%;
   background: white;
   padding: 10px 15px;
+  padding-bottom: 50px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -290,7 +296,7 @@
 
 /* Prevent content hidden under button */
 .home-wrapper {
-  padding-bottom: 80px;
+  padding-bottom: 110px;
 }
 
 .tab-section {
@@ -402,8 +408,9 @@
   background: #f4fbff;
   border-radius: 6px;
   margin-top: 8px;
-  max-height: 450px;   // adjust for mobile
+  // max-height: 450px;   // adjust for mobile
   overflow-y: auto;
+  // margin-bottom: 60px;
 }
 
 .table-body {
@@ -581,14 +588,18 @@
 }
 
 .qty-btn {
-  width: 22px;
-  height: 25px;
+  width: 27.67px !important;      /* increase size */
+  height: 31.67px !important;
   border: none;
-  background: #35b5de;
+  background: #2486A4 !important;
   color: white;
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 18px !important;  /* bigger symbol */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 
 .row-count {
   min-width: 16px;
@@ -596,8 +607,8 @@
 }
 
 .qty-input {
-  width: 36px;
-  height: 24px;
+  width: 38px;
+  height: 31.67px;
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -664,5 +675,8 @@
   background: #d32f2f;
   color: white;
 }
+
+
+
 
 

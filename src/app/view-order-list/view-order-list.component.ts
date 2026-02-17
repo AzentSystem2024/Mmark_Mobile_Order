@@ -23,6 +23,12 @@ export class ViewOrderListComponent {
   constructor(private service:MyserviceService , private router:Router){}
 
   ngOnInit() {
+    
+    // ✅ restore last selected filter
+    const savedFilter = sessionStorage.getItem('ORDER_LIST_FILTER');
+    if (savedFilter) {
+      this.selectedFilter = savedFilter;
+    }
     this.loadOrders();
   }
 
@@ -55,6 +61,9 @@ export class ViewOrderListComponent {
 }
 
   applyDateFilter() {
+
+  // ✅ persist selected filter
+  sessionStorage.setItem('ORDER_LIST_FILTER', this.selectedFilter);
 
   if (this.selectedFilter === 'ALL') {
     this.orders = [...this.allOrders];

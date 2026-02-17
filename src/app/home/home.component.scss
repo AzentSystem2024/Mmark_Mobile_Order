@@ -293,3 +293,27 @@
   font-weight: bold;
 }
 
+.input-container {
+  position: relative;
+}
+
+.input-container .search-input {
+  padding-right: 36px; /* space for X icon */
+}
+
+.clear-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #888;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.clear-icon:hover {
+  color: #333;
+}
+
+

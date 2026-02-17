@@ -26,6 +26,7 @@
           formControlName="LOGIN_NAME"
           placeholder="User Name"
           (input)="OnchangeLoginanme()"
+          [disabled]="isLogin"
         />
       </div>
 
@@ -40,6 +41,7 @@
           formControlName="PASSWORD"
           placeholder="Password"
           (input)="OnchangePassword()"
+          [disabled]="isLogin"
         />
 
         <i
@@ -59,5 +61,13 @@
         LOGIN
       </button>
     </form>
+  </div>
+</div>
+
+<!-- LOGIN LOADER -->
+<div class="login-loader" *ngIf="isLogin">
+  <div class="loader-content">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    <p>Signing you in...</p>
   </div>
 </div>

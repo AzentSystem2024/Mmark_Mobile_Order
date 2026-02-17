@@ -19,87 +19,112 @@
 
 </div>
 
-  <div class="cart-item" *ngFor="let item of cartItems; let i = index">
+  <div
+  class="cart-item-wrapper"
+  *ngFor="let item of cartItems; let i = index"
+>
 
-  <!-- LEFT SIDE -->
-  <div class="cart-left">
+  <!-- ================= CARD CONTENT ================= -->
+  <div class="cart-item">
 
-    <div class="art">{{ item.artNo }}</div>
+    <!-- LEFT -->
+    <div class="cart-left">
+      <div class="art">{{ item.artNo }}</div>
+      <div class="category">{{ item.categoryName }}</div>
 
-    <div class="category">{{ item.categoryName }}</div>
-
-    <div class="color">
-      {{ item.color }}
-      <span
-        class="color-dot"
-        [style.background]="getColorHex(item.color)"
-      ></span>
+      <div class="color">
+        {{ item.color }}
+        <span
+          class="color-dot"
+          [style.background]="getColorHex(item.color)">
+        </span>
+      </div>
     </div>
 
+    <!-- RIGHT -->
+    <div class="cart-right" [ngClass]="getLayoutClass(item)">
+
+      <!-- SET -->
+      <div class="cart-col" *ngIf="item.setSizes?.length">
+        <div class="size-header">
+          <span class="qty-badge top">{{ getSetTotal(item) }}</span>
+
+          <span class="size-title">Set</span>
+          <span class="qty-text">Qty</span>
+        </div>
+
+        <div class="size-row" *ngFor="let s of item.setSizes">
+          <span>{{ s.size }}</span>
+          <span>{{ s.qty }}</span>
+        </div>
+      </div>
+
+      <div class="divider" *ngIf="item.setSizes?.length"></div>
+
+      <!-- SEMI -->
+      <div
+        class="cart-col"
+        *ngIf="userType !== 4 && item.semiSizes?.length"
+      >
+        <div class="size-header">
+          <span class="qty-badge top">{{ getSemiTotal(item) }}</span>
+
+          <span class="size-title">Set</span>
+          <span class="qty-text">Qty</span>
+        </div>
+
+        <div class="size-row" *ngFor="let s of item.semiSizes">
+          <span>{{ s.size }}</span>
+          <span>{{ s.qty }}</span>
+        </div>
+      </div>
+
+      <div
+        class="divider"
+        *ngIf="userType !== 4 && item.semiSizes?.length"
+      ></div>
+
+      <!-- CASE -->
+      <div class="cart-col" *ngIf="item.caseSizes?.length">
+        <div class="size-header">
+          <span class="qty-badge top">{{ getCaseTotal(item) }}</span>
+
+          <span class="size-title">Set</span>
+          <span class="qty-text">Qty</span>
+        </div>
+
+        <div class="size-row" *ngFor="let s of item.caseSizes">
+          <span>{{ s.size }}</span>
+          <span>{{ s.qty }}</span>
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <!-- RIGHT SIDE -->
-  <div class="cart-right three-col">
+  <!-- ================= BOTTOM ACTION BAR ================= -->
+  <div class="cart-bottom-actions">
 
-  <!-- SET -->
-  <div class="cart-col" *ngIf="item.setSizes?.length">
+    <button
+      class="action remove"
+      (click)="removeItem(i)"
+    >
+      <i class="fa-solid fa-trash"></i>
+      Remove
+    </button>
 
-    <div class="size-header">
-      <span>Set</span>
-      <span>Qty <span class="qty-badge">{{ getSetTotal(item) }}</span>  </span>
-    </div>
-
-    <div class="size-row" *ngFor="let s of item.setSizes">
-      <span>{{ s.size }}</span>
-      <span>{{ s.qty }}</span>
-    </div>
-
-  </div>
-
-  <!-- Divider -->
-  <div class="divider" *ngIf="item.setSizes?.length"></div>
-
-  <!-- SEMI -->
-  <div class="cart-col" *ngIf="userType !== 4 && item.semiSizes?.length">
-
-    <div class="size-header">
-      <span>Semi</span>
-      <span>Qty <span class="qty-badge">{{ getSemiTotal(item) }}</span></span>
-    </div>
-
-    <div class="size-row" *ngFor="let s of item.semiSizes">
-      <span>{{ s.size }}</span>
-      <span>{{ s.qty }}</span>
-    </div>
+    <button
+      class="action edit"
+      (click)="editItem(i)"
+    >
+      <i class="fa-solid fa-pen"></i>
+      Edit
+    </button>
 
   </div>
-
-  <div class="divider" *ngIf="userType !== 4 && item.semiSizes?.length"></div>
-
-  <!-- CASE -->
-  <div class="cart-col" *ngIf="item.caseSizes?.length">
-
-    <div class="size-header">
-      <span>Case</span>
-      <span>Qty <span class="qty-badge"> {{ getCaseTotal(item) }} </span> </span>
-    </div>
-
-    <div class="size-row" *ngFor="let s of item.caseSizes">
-      <span>{{ s.size }}</span>
-      <span>{{ s.qty }}</span>
-    </div>
-
-  </div>
-
-  <!-- CLOSE -->
-  <i class="fa-solid fa-xmark close-icon" (click)="removeItem(i)"></i>
 
 </div>
 
-
-
-
-</div>
 
 </div>
 

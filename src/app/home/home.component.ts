@@ -403,4 +403,44 @@ export class HomeComponent {
   goToRetailerOrder() {
     this.router.navigate(['/retailer-Add']);
   }
+
+  clearDealerSearch() {
+  if (this.hasCartItems()) return;
+
+  this.dealerSearch = '';
+  this.selectedDealer = null;
+  this.filteredDealers = [...this.dealers];
+  this.showDealerList = true;
+
+  setTimeout(() => {
+    this.dealerInput?.nativeElement.focus();
+  });
+}
+
+  clearSubDealerSearch() {
+  if (this.hasCartItems()) return;
+
+  this.subDealerSearch = '';
+  this.selectedSubDealer = null;
+  this.filteredSubDealers = [...this.subDealers];
+  this.showSubDealerList = true;
+
+  setTimeout(() => {
+    this.subDealerInput?.nativeElement.focus();
+  });
+}
+
+  clearRetailerSearch() {
+  if (this.hasCartItems()) return;
+
+  this.retailerSearch = '';
+  this.selectedRetailer = null;
+  this.filteredRetailers = [...this.retailers];
+  this.showRetailerList = true;
+
+  setTimeout(() => {
+    this.retailerInput?.nativeElement.focus();
+  });
+}
+
 }

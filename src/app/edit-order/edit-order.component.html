@@ -40,7 +40,6 @@
       <select
         class="category-select"
         [(ngModel)]="selectedCategory"
-        (change)="loadArtNos()"
         disabled
       >
         <option value="" disabled selected hidden>Select Category</option>
@@ -116,7 +115,7 @@
 
   <div
     class="tab-item"
-    *ngIf="showSemiTab"
+    *ngIf="showSetTab"
     [class.active]="selectedTab === 'Set'"
     (click)="selectTab('Set')">
     Set
@@ -132,6 +131,7 @@
 
   <div
     class="tab-item"
+    *ngIf="showCaseTab"
     [class.active]="selectedTab === 'Case'"
     (click)="selectTab('Case')">
     Case
@@ -253,7 +253,7 @@
           <span>{{ item.size }}</span>
 
           <div class="row-qty">
-            <button (click)="decCut(i)">−</button>
+            <button class="qty-btn" (click)="decCut(i)">−</button>
             <input
               type="number"
               class="qty-input"
@@ -265,6 +265,7 @@
             />
             <button
               (click)="incCut(i)"
+              class="qty-btn"
               [disabled]="totalCutQty >= activeCutRow?.PairQty"
             >
               +

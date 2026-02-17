@@ -91,6 +91,9 @@ export class EditOrderComponent {
   
   showUnsavedPopup = false;
   pendingNavigation = false;
+
+  showSetTab = false;
+  showCaseTab = false;
   
   
     constructor(private router: Router,
@@ -102,22 +105,103 @@ export class EditOrderComponent {
   
   ngOnInit() {
 
-  this.loadCategories();   // 👈 ADD THIS
+  this.loadCategories();
 
-  this.editIndex = Number(this.route.snapshot.paramMap.get('index'));
+  this.route.paramMap.subscribe(params => {
 
-  const cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+    this.editIndex = Number(params.get('index'));
 
-  this.editItem = cart[this.editIndex];
-  console.log(this.editItem,"editItem ")
+    const cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+    this.editItem = cart[this.editIndex];
 
-  if (!this.editItem) {
-    this.router.navigate(['/cart']);
+    console.log(this.editItem,"edited item")
+
+    if (!this.editItem) {
+      this.router.navigate(['/cart']);
+      return;
+    }
+
+    // 🔑 reset state before patching
+    this.resetScreen();
+
+    this.setTabVisibility();
+    this.patchItemToScreen();
+  });
+}
+
+
+setTabVisibility() {
+
+  // Reset
+  this.showSetTab = true;
+  this.showSemiTab = true;
+  this.showCaseTab = true;
+
+  // -----------------------------
+  // USER TYPE BASE RULE
+  // -----------------------------
+  if (this.userType === 4) {
+    // Dealer login → Case only
+    this.showSetTab = false;
+    this.showSemiTab = false;
+    this.showCaseTab = true;
+    this.selectedTab = 'Case';
     return;
   }
 
-  this.patchItemToScreen();
+  // -----------------------------
+  // ORDER_FOR BASE RULE
+  // -----------------------------
+  const orderForStr = sessionStorage.getItem('ORDER_FOR');
+
+  if (orderForStr) {
+
+    const orderFor = JSON.parse(orderForStr);
+
+    const dealerId = orderFor?.DEALER_ID;
+    const retailerId = orderFor?.RETAILER_ID;
+    const subDealerId = orderFor?.SUB_DEALER_ID;
+
+    // Retailer order → allow Set + Semi + Case
+    if (retailerId) {
+      this.showSetTab = true;
+      this.showSemiTab = true;
+      this.showCaseTab = true;
+      this.selectedTab = 'Set';
+      return;
+    }
+
+    // Dealer / Sub-Dealer order → Case only
+    if (dealerId || subDealerId) {
+      this.showSetTab = false;
+      this.showSemiTab = false;
+      this.showCaseTab = true;
+      this.selectedTab = 'Case';
+      return;
+    }
+  }
+
+  // -----------------------------
+  // DEFAULT (Salesman normal flow)
+  // -----------------------------
+  this.showSetTab = true;
+  this.showSemiTab = true;
+  this.showCaseTab = true;
+  this.selectedTab = 'Set';
 }
+
+
+
+resetScreen() {
+  this.setSizes = [];
+  this.semiSizes = [];
+  this.caseSizes = [];
+  this.colors = [];
+  this.selectedColorIndex = -1;
+  this.selectedTab = this.showSemiTab ? 'Set' : 'Case';
+}
+
+
 
 
   patchItemToScreen() {
@@ -133,11 +217,7 @@ export class EditOrderComponent {
 
   this.service.getArtColor(payload).subscribe((res: any) => {
 
-    if (res.IMAGE_NAME) {
-          this.productImage = `https://mmarkonline.com/artimages/${res.IMAGE_NAME}`;
-  } else {
-          this.productImage = 'https://mmarkonline.com/artimages/NoImage.jpg';
-   }
+    this.productImage = this.editItem.articleImage;
 
     this.colors = res.Colors.map((x: any) => ({
       name: x.Color,
@@ -189,35 +269,61 @@ export class EditOrderComponent {
 }
 
 
-
   updateCart() {
+
+  const hasQty =
+    this.setSizes.some(x => x.qty > 0) ||
+    this.semiSizes.some(x => x.qty > 0) ||
+    this.caseSizes.some(x => x.qty > 0);
+
+  if (!hasQty) {
+    this.toastr.error('Please add quantity');
+    return;
+  }
 
   this.isSaving = true;
 
   const updatedItem = {
-  ...this.editItem,
+    ...this.editItem,
 
-  setSizes: this.setSizes.filter(x => x.qty > 0),
+    setSizes: this.setSizes
+      .filter(x => x.qty > 0)
+      .map(x => ({
+        size: x.size,
+        qty: x.qty,
+        combination: x.Combination || '',
+        packingID: x.packingID
+      })),
 
-  semiSizes: this.semiSizes.filter(x => x.qty > 0),
+    semiSizes: this.semiSizes
+      .filter(x => x.qty > 0)
+      .map(x => ({
+        size: x.size,
+        qty: x.qty,
+        ID: x.ID
+      })),
 
-  caseSizes: this.caseSizes.filter(x => x.qty > 0),
-
-  totalQty: this.totalQuantity
-};
+    caseSizes: this.caseSizes
+      .filter(x => x.qty > 0)
+      .map(x => ({
+        size: x.size,
+        qty: x.qty,
+        combination: x.Combination || '',
+        packingID: x.packingID
+      })),
+  };
 
   const cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
-
   cart[this.editIndex] = updatedItem;
 
   sessionStorage.setItem('cart', JSON.stringify(cart));
 
   this.toastr.success('Cart updated successfully');
-
   this.router.navigate(['/cart']);
 
   this.isSaving = false;
 }
+
 
 
     goToCart() {
@@ -501,7 +607,7 @@ export class EditOrderComponent {
   
     goBack() {
   
-    this.router.navigate(['/home']);
+    this.router.navigate(['/cart']);
   }
   
   
