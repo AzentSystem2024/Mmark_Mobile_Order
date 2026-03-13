@@ -265,3 +265,28 @@
     background-position: -100% 0;
   }
 }
+
+
+.order-summary {
+  margin-left: auto;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.summarylable{
+  color: #444;
+  opacity: 0.7;
+  font-weight: 500;
+}
+.summaryCount{
+  color: #000000;
+  font-weight: 600;
+}
+.summarydivider{
+  width: -1px;
+  opacity: 0.7;
+  color: #ddd;
+}
+
+
+

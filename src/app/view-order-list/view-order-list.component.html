@@ -7,11 +7,13 @@
   <span class="title">View Orders</span>
 
   <!-- DATE FILTER -->
+  <div class="date-filter-wrapper">
   <select
     class="date-filter"
     [(ngModel)]="selectedFilter"
     (change)="applyDateFilter()"
   >
+  <div class="dateoption">
     <option value="TODAY">Today</option>
     <option value="YESTERDAY">Yesterday</option>
     <option value="3">Last 3 Days</option>
@@ -20,7 +22,12 @@
     <option value="15">Last 15 Days</option>
     <option value="30">Last 30 Days</option>
     <option value="ALL">All</option>
+  </div>
   </select>
+
+  <!-- caret -->
+  <i class="fa-solid fa-chevron-down filter-caret"></i>
+</div>
 </div>
 
   <!-- 🔄 SKELETON LOADING -->

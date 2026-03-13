@@ -1,9 +1,64 @@
 html, body {
   height: 100%;
+  // overscroll-behavior-y: contain;
+  // touch-action: pan-x pan-down;
 }
+
 
 body {
   font-family: -apple-system, BlinkMacSystemFont,
                'SF Pro Text', 'Segoe UI',
                Roboto, sans-serif;
+}
+
+/* OFFLINE */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #d32f2f;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 100000;
+}
+
+/* BACK ONLINE */
+.online-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #2e7d32;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 100001;
+
+  animation: fadeOut 10s ease forwards;
+}
+
+/* ⏱ Fade out */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.iti__flag {
+  background-image: url("assets/intl-tel-input/flags.png");
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .iti__flag {
+    background-image: url("assets/intl-tel-input/flags@2x.png");
+  }
 }

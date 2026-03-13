@@ -11,6 +11,12 @@
   padding-bottom:50px;
 }
 
+.logout-hide {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
 /* HEADER */
 
 .home-header {
@@ -52,6 +58,7 @@
 }
 
 .primary-btn {
+  margin-top: 10px;
   background: #35b5de;
   color: white;
   padding: 16px;
@@ -83,7 +90,7 @@
 .logout-btn {
   background: #e32119;
   color: white;
-  padding: 16px;
+  padding: 14px;
   border-radius: 8px;
   border: none;
   font-weight: 600;
@@ -95,9 +102,19 @@
 
 /* MOBILE OPTIMIZATION */
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1024px) {
   .home-wrapper {
-    max-width: 420px;
+    max-width: 720px;   /* tablet-friendly */
+    margin: auto;
+    border-radius: 20px;
+    padding: 24px;
+  }
+}
+
+/* DESKTOP */
+@media (min-width: 1025px) {
+  .home-wrapper {
+    max-width: 420px;   /* keep mobile-style card on desktop */
     margin: auto;
     border-radius: 20px;
     box-shadow: 0 0 30px rgba(0,0,0,.1);
@@ -201,21 +218,59 @@
 .radio-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 500;
 }
 
+/* hide native radio */
 .radio-item input {
-  accent-color: #35b5de;
+  display: none;
+}
+
+/* outer circle */
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #bbb;
+  position: relative;
+  transition: border 0.2s ease;
+}
+
+/* inner dot */
+.radio-custom::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: #35b5de;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s ease;
+}
+
+/* checked */
+.radio-item input:checked + .radio-custom {
+  border-color: #35b5de;
+}
+
+.radio-item input:checked + .radio-custom::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.home-body > .dropdown-wrapper {
+  margin-bottom: 8px;
 }
 
 /* ================= DROPDOWN ================= */
 
 .dropdown-wrapper {
+  position: relative;   /* ✅ important */
   width: 100%;
-  max-width: 100%;
-  margin-top: 1px;
 }
 
 .dropdown-wrapper select {
@@ -262,13 +317,23 @@
 }
 
 .dropdown-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+
   max-height: 220px;
+
   overflow-y: auto;
+  overflow-x: hidden;   /* ✅ remove horizontal scroll */
+
   background: #e9f8ff;
   border-radius: 10px;
-  margin-top: 6px;
   box-shadow: 0 6px 16px rgba(0,0,0,.15);
+
+  z-index: 1000;
 }
+
 
 .dropdown-item {
   padding: 10px 12px;
@@ -297,23 +362,85 @@
   position: relative;
 }
 
-.input-container .search-input {
-  padding-right: 36px; /* space for X icon */
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #999;
+}
+
+.search-input.with-left-icon {
+  padding-left: 36px;
+  padding-right: 32px;
 }
 
 .clear-icon {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 14px;
-  color: #888;
+
+  font-size: 12px;
+  color: #b8b8b8;
+
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
   cursor: pointer;
-  z-index: 3;
+
+  transition: 
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
 }
 
+/* Hover (desktop / tablet) */
 .clear-icon:hover {
-  color: #333;
+  background: rgba(0, 0, 0, 0.04);
+  color: #444;
+}
+
+/* Tap feedback (mobile) */
+.clear-icon:active {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-50%) scale(0.9);
 }
 
 
+
+
+.order-type-tabs {
+  display: flex;
+  background: #f1f1f1;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.order-tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.order-tab.active {
+  background: white;
+  color: #111;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}

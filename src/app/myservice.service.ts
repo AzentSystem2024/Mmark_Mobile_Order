@@ -30,6 +30,17 @@ export class MyserviceService {
     return this.http.post(`${this.baseUrl}DropDown`, payload);
   }
 
+  get_Retailer_SubDelaer_DropDown_Data(item: any) {
+    const payload = item;
+    return this.http.post(`${this.baseUrl}DropDown/RetailerSubDealer`, payload);
+  }
+
+  get_Retailer_Delaer_DropDown_Data(item: any) {
+    const payload = item;
+    return this.http.post(`${this.baseUrl}DropDown/RetailerDealer`, payload);
+  }
+
+  
   getArtNo(categoryId: string) {
     return this.http.post(`${this.baseUrl}NewOrder/GetArtNo`, {
       CategoryID: categoryId,
@@ -163,6 +174,27 @@ export class MyserviceService {
     return this.http.post(`${this.baseUrl}Retailer/district`, payload);
   }
 
+  fetch_retailer_data(payload:any){
+    return this.http.post(`${this.baseUrl}Retailer/fetchData`, payload);
+  }
 
+   //==================Change Password======
+   //====PasswordPolicyData==================
+  
+  fetchPasswordPolicyData(payload:any){
+    return this.http.post(`${this.baseUrl}ChangePassword/PasswordPolicy`, payload);
+  }
+
+  updatePassword(payload:any){
+    return this.http.post(`${this.baseUrl}ChangePassword/UpdatePassword`, payload);
+  }
+
+  generateOtp(payload:any){
+    return this.http.post(`${this.baseUrl}ChangePassword/GenerateOtp`, payload);
+  }
+
+  verifyOtp(payload:any){
+    return this.http.post(`${this.baseUrl}ChangePassword/VerifyOtp`, payload);
+  }
 
 }

@@ -36,7 +36,18 @@
   <div class="product-info-row">
     <!-- LEFT : IMAGE -->
     <div class="product-image-wrapper" (click)="openImagePreview()">
-      <img [src]="productImage" class="main-product" />
+      <!-- Skeleton -->
+      <div
+        class="image-skeleton"
+        *ngIf="isImageLoaded"
+      ></div>
+
+      <!-- Real image -->
+      <img
+        *ngIf="productImage && !isSizeLoading"
+        [src]="productImage"
+        class="main-product"
+      />
     </div>
 
     <!-- IMAGE PREVIEW -->
@@ -68,26 +79,35 @@
 
       <!-- Art No -->
       <div class="filter-left" #artBox>
+      <div class="input-container">
+        <!-- 🔍 Search icon -->
+        <i class="fa-solid fa-magnifying-glass search-icon"
+         [style.opacity]="selectedCategory ? 1 : 0.4"
+        ></i>
+
         <input
           #artInput
           type="text"
-          placeholder="Enter Art No"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          placeholder="Search Art No"
           [(ngModel)]="artSearch"
           (input)="filterArtNos()"
-          class="art-input"
+          class="art-input with-left-icon"
           [disabled]="!selectedCategory"
         />
-
-        <div class="art-dropdown" *ngIf="filteredArtNos.length">
-          <div
-            class="art-item"
-            *ngFor="let art of filteredArtNos"
-            (click)="selectArt(art)"
-          >
-            {{ art }}
-          </div>
-        </div>
       </div>
+
+  <div class="art-dropdown" *ngIf="filteredArtNos.length">
+    <div
+      class="art-item"
+      *ngFor="let art of filteredArtNos"
+      (click)="selectArt(art)"
+    >
+      {{ art }}
+    </div>
+  </div>
+</div>
     </div>
   </div>
 
@@ -192,8 +212,15 @@
 
     <div class="table-body">
 
+  <ng-container *ngIf="isSizeLoading">
+    <div class="size-skeleton-row" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+      <div class="sk-size"></div>
+      <div class="sk-qty"></div>
+    </div>
+  </ng-container>
+
   <!-- DATA -->
-  <ng-container *ngIf="displayedSizes.length > 0; else noData">
+  <ng-container *ngIf="!isSizeLoading && displayedSizes.length > 0; else noData">
     <div
       class="table-row"
       *ngFor="let row of displayedSizes; let i = index"
@@ -212,7 +239,15 @@
       </div>
 
       <div class="row-qty">
-        <button class="qty-btn" (click)="decreaseRowQty(i)">−</button>
+        <button class="qty-btn" 
+        [disabled]="row.qty === 0"
+        (pointerdown)="onPressStart(i, 'dec', $event)"
+        (pointerup)="onPressEnd(i, 'dec', $event)"
+        (pointerleave)="onPressCancel()"
+        (pointercancel)="onPressCancel()"
+        >
+        −
+      </button>
 
         <input
           type="number"
@@ -230,7 +265,10 @@
         <button
           class="qty-btn"
           *ngIf="!row.size.toLowerCase().includes('cut')"
-          (click)="increaseRowQty(i)"
+          (pointerdown)="onPressStart(i, 'inc', $event)"
+          (pointerup)="onPressEnd(i, 'inc', $event)"
+          (pointerleave)="onPressCancel()"
+          (pointercancel)="onPressCancel()"
         >
           +
         </button>
@@ -247,8 +285,8 @@
   </ng-container>
 
   <!-- NO DATA -->
-  <ng-template #noData>
-    <div class="no-data">
+  <ng-template  #noData >
+    <div class="no-data" *ngIf="!isSizeLoading">
       No sizes available
     </div>
   </ng-template>
@@ -290,7 +328,15 @@
           <span>{{ item.size }}</span>
 
           <div class="row-qty">
-            <button class="qty-btn" (click)="decCut(i)">−</button>
+            <button class="qty-btn" 
+            [disabled]="item.qty === 0"
+            (pointerdown)="onCutPressStart(i, 'dec', $event)"
+            (pointerup)="onCutPressEnd(i, 'dec', $event)"
+            (pointerleave)="onCutPressCancel()"
+            (pointercancel)="onCutPressCancel()"
+            >
+            −
+          </button>
             <input
               type="number"
               class="qty-input"
@@ -301,7 +347,11 @@
               (blur)="validateCutQty(item)"
             />
             <button
-              (click)="incCut(i)" class="qty-btn"
+              class="qty-btn"
+              (pointerdown)="onCutPressStart(i, 'inc', $event)"
+              (pointerup)="onCutPressEnd(i, 'inc', $event)"
+              (pointerleave)="onCutPressCancel()"
+              (pointercancel)="onCutPressCancel()"
               [disabled]="totalCutQty >= activeCutRow?.PairQty"
             >
               +

@@ -20,6 +20,9 @@ export class ViewOrderListComponent {
   selectedFilter: string = 'TODAY';
   allOrders: any[] = [];
 
+  isFilterOpen = false;
+
+
   constructor(private service:MyserviceService , private router:Router){}
 
   ngOnInit() {

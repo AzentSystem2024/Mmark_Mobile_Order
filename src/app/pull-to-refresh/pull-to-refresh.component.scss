@@ -1,0 +1,59 @@
+html, body {
+  overscroll-behavior-y: contain;
+}
+
+.ptr-wrapper {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* White circle */
+.ptr-circle {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  transform: translate(-50%, -60px);
+  transition:
+    transform 0.18s ease,
+    opacity 0.12s ease,
+    background 0.2s ease;
+
+  z-index: 9999;
+}
+
+.ptr-circle.visible {
+  opacity: 1;
+}
+
+/* After release */
+.ptr-circle.refreshing {
+  background: #1aa260; /* Gmail green */
+}
+
+/* Icon */
+.ptr-circle i {
+  font-size: 18px;
+  transition: color 0.15s linear;
+}
+
+/* Spin ONLY after release */
+.ptr-circle i.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

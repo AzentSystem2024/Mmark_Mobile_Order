@@ -4,7 +4,9 @@
   [class.fly-to-login]="isLoggingOut"
 />
 
-<div class="home-wrapper">
+<div class="home-wrapper"
+[class.logout-hide]="isLoggingOut"
+>
   <!-- Header -->
   <div class="home-header">
     <!-- <img
@@ -47,7 +49,7 @@
   <!-- Center buttons -->
   <div class="home-body">
     <!-- ================= SELECT TYPE ================= -->
-    <div class="select-type-wrapper" *ngIf="showDealerRetailerSelect">
+    <!-- <div class="select-type-wrapper" *ngIf="showDealerRetailerSelect">
       <label class="radio-item">
         <input
           type="radio"
@@ -56,7 +58,8 @@
           [(ngModel)]="selectedType"
           (change)="onTypeChange('DEALER')"
         />
-        <span>Dealer</span>
+        <span class="radio-custom"></span>
+        <span class="radio-label">Dealer</span>
       </label>
 
       <label class="radio-item">
@@ -67,7 +70,8 @@
           [(ngModel)]="selectedType"
           (change)="onTypeChange('SUB_DEALER')"
         />
-        <span>Sub Dealer</span>
+        <span class="radio-custom"></span>
+        <span class="radio-label">Sub Dealer</span>
       </label>
 
       <label class="radio-item">
@@ -78,9 +82,36 @@
           [(ngModel)]="selectedType"
           (change)="onTypeChange('RETAILER')"
         />
-        <span>Retailer</span>
+        <span class="radio-custom"></span>
+        <span class="radio-label">Retailer</span>
       </label>
-    </div>
+    </div> -->
+
+    <div class="order-type-tabs" *ngIf="showDealerRetailerSelect">
+  <div
+    class="order-tab"
+    [class.active]="selectedType === 'DEALER'"
+    (click)="onTypeChange('DEALER')"
+  >
+    Dealer
+  </div>
+
+  <div
+    class="order-tab"
+    [class.active]="selectedType === 'SUB_DEALER'"
+    (click)="onTypeChange('SUB_DEALER')"
+  >
+    Sub Dealer
+  </div>
+
+  <div
+    class="order-tab"
+    [class.active]="selectedType === 'RETAILER'"
+    (click)="onTypeChange('RETAILER')"
+  >
+    Retailer
+  </div>
+</div>
 
     <!-- ================= DEALER DROPDOWN ================= -->
     <div
@@ -89,10 +120,12 @@
   >
   <!-- 🔒 input container -->
   <div class="input-container">
+    <!-- 🔍 Search icon -->
+  <i class="fa-solid fa-magnifying-glass search-icon"></i>
     <input
       #dealerInput
       type="text"
-      class="search-input"
+      class="search-input with-left-icon"
       placeholder="Search Dealer"
       [(ngModel)]="dealerSearch"
       (input)="filterDealers()"
@@ -127,10 +160,12 @@
       *ngIf="showDealerRetailerSelect && selectedType === 'SUB_DEALER'"
     >
       <div class="input-container">
+         <!-- 🔍 Search icon -->
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
       <input
         #subDealerInput
         type="text"
-        class="search-input"
+        class="search-input with-left-icon"
         placeholder="Search Sub Dealer"
         [(ngModel)]="subDealerSearch"
         (input)="filterSubDealers()"
@@ -168,10 +203,12 @@
       *ngIf="showDealerRetailerSelect && selectedType === 'RETAILER'"
     >
       <div class="input-container">
+         <!-- 🔍 Search icon -->
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
       <input
         #retailerInput
         type="text"
-        class="search-input"
+        class="search-input with-left-icon"
         placeholder="Search Retailer"
         [(ngModel)]="retailerSearch"
         (input)="filterRetailers()"
@@ -215,14 +252,14 @@
     <button class="secondary-btn" *ngIf="userType !== 4 && userType !== 13"(click)="goToRetailerOrder()">
       <i class="bi bi-shop"></i>
 
-      Create New Retailer
+      New Retailer
     </button>
   </div>
 
   <!-- Logout -->
   <button class="logout-btn" (click)="openLogoutConfirm()">
     <i class="fa-solid fa-right-from-bracket"></i>
-    LOGOUT
+    Logout
   </button>
 </div>
 

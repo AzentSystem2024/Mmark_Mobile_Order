@@ -1,0 +1,22 @@
+<div
+  class="ptr-wrapper"
+  (touchstart)="onTouchStart($event)"
+  (touchmove)="onTouchMove($event)"
+  (touchend)="onTouchEnd()"
+>
+  <div
+    class="ptr-circle"
+    [class.visible]="pullDistance > 0"
+    [class.refreshing]="refreshing"
+    [style.transform]="circleTransform"
+  >
+    <i
+    class="fa-solid fa-arrow-rotate-right"
+    [style.color]="iconColor"
+    [style.transform]="'rotate(' + pullDistance * 2 + 'deg)'"
+    [class.spin]="refreshing"
+  ></i>
+  </div>
+
+  <ng-content></ng-content>
+</div>

@@ -8,6 +8,25 @@
     </span>
 
   <span class="title sk sk-text lg" *ngIf="loading"></span>
+
+   <div class="order-summary" *ngIf="!loading && order?.items?.length">
+
+  <ng-container *ngIf="showSetTotal()">
+    <span class="summarylable">Set : <span class="summaryCount">{{ totalSetQty }}</span></span>
+  </ng-container>
+
+  <ng-container *ngIf="showSemiTotal()">
+    <span *ngIf="showSetTotal()" class="summarydivider"> | </span>
+    <span class="summarylable">Semi : <span class="summaryCount">{{ totalSemiQty }}</span></span>
+  </ng-container>
+
+  <ng-container *ngIf="showCaseTotal()">
+    <span *ngIf="showSetTotal() || showSemiTotal()" class="summarydivider"> | </span>
+    <span class="summarylable">Case : <span class="summaryCount">{{ totalCaseQty }}</span></span>
+  </ng-container>
+
+  </div>
+
   </div>
 
   <!-- ================= SKELETON LOADING ================= -->
@@ -97,7 +116,7 @@
         <div class="cart-col" *ngIf="userType!=4  && hasQty(item.semiSizes)">
           <div class="size-header">
             <span class="qty-badge top">{{ getSemiTotal(item) }}</span>
-            <span class="size-title">Set</span>
+            <span class="size-title">Semi</span>
             <span class="qty-text">Qty</span>
           </div>
 
@@ -115,7 +134,7 @@
         <div class="cart-col" *ngIf="hasQty(item.caseSizes)">
           <div class="size-header">
             <span class="qty-badge top">{{ getCaseTotal(item) }}</span>
-            <span class="size-title">Set</span>
+            <span class="size-title">Case</span>
             <span class="qty-text">Qty</span>
           </div>
 

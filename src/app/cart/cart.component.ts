@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { MyserviceService } from '../myservice.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { NetworkService } from '../network.service';
 
 @Component({
   selector: 'app-cart',
@@ -15,6 +16,10 @@ export class CartComponent {
 
   cartItems:any[] = [];
   isSaving = false;
+  retryCount = 0;
+  maxRetries = 5;
+  isRetrying = false;
+
   userType:any;
 
   showRemoveConfirm = false;
@@ -35,15 +40,29 @@ export class CartComponent {
   constructor(
     private service:MyserviceService, 
     private toastr: ToastrService,
-    private routes: Router,){
+    private routes: Router,
+   private network: NetworkService){
       
     }
 
+    
+
   ngOnInit() {
+
+  history.pushState(null, '', location.href);
+  
   this.cartItems = JSON.parse(sessionStorage.getItem('cart') || '[]');
   
   const login = JSON.parse(sessionStorage.getItem('LogData') || '{}');
   this.userType = Number(login.USER_TYPE);
+}
+
+@HostListener('window:popstate', ['$event'])
+onPopState(event: Event) {
+  if (this.isSaving) {
+    // 🚫 Stop back navigation
+    history.pushState(null, '', location.href);
+  }
 }
 
   removeItem(index: number) {
@@ -303,65 +322,69 @@ confirmSubmit() {
 }
 
 submitOrder() {
-
   this.isSaving = true;
+  this.retryCount = 0;
+  this.trySubmit();
+}
 
+trySubmit() {
   const payload = this.buildPayload();
 
-  console.log(payload);
-
-  this.service.saveNewOrder(payload).subscribe((res: any) => {
-
-    if (res?.flag === "1") {
-
-      // ✅ clear cart
-      sessionStorage.removeItem('cart');
-      this.cartItems = [];
-
-      // ✅ toast success
-      // this.toastr.success(res.message || 'Order submitted successfully');
-      this.showSnackBar(
-        res.message || 'Order submitted successfully',
-        'success'
-      );
-      this.isSaving = false;
-
-      // ✅ show snack FIRST
-      this.showSnackBar(
-        res.message || 'Order submitted successfully',
-        'success'
-      );
-
-      this.isSaving = false;
-
-      // ⏳ navigate AFTER snack duration
-      setTimeout(() => {
-        this.routes.navigate(['/home']);
-      }, 2500);
-
-    } else {
-
-      // ❌ backend returned failure
-      // this.toastr.error(res?.message || 'Failed to submit order');
-      this.showSnackBar(
-        res.message || 'Failed to submit order',
-        'error'
-      );
-      this.isSaving = false;
+  this.service.saveNewOrder(payload).subscribe({
+    next: (res: any) => {
+      if (res?.flag === '1') {
+        this.handleSuccess(res.message);
+      } else {
+        this.handleFailure(res?.message || 'Failed to submit order');
+      }
+    },
+    error: () => {
+      this.handleRetry();
     }
-
-  }, err => {
-
-    // ❌ API/network error
-    // this.toastr.error('Failed to submit order');
-    this.showSnackBar(
-        'Failed to submit order',
-        'error'
-      );
-    this.isSaving = false;
-
   });
+}
 
+handleFailure(message: string) {
+  this.isSaving = false;
+  this.isRetrying = false;
+
+  this.showSnackBar(
+    message || 'Order could not be submitted',
+    'error'
+  );
+}
+
+handleRetry() {
+  if (this.retryCount < this.maxRetries) {
+    this.retryCount++;
+    this.isRetrying = true;
+
+    setTimeout(() => {
+      this.trySubmit();
+    }, 1200); // short pause feels intentional
+  } else {
+    this.isSaving = false;
+    this.isRetrying = false;
+
+    this.showSnackBar(
+      'Order not submitted',
+      'error'
+    );
+  }
+}
+
+handleSuccess(message: string) {
+  sessionStorage.removeItem('cart');
+  this.cartItems = [];
+
+  this.isSaving = false;
+  this.isRetrying = false;
+
+  this.showSnackBar(message || 'Order placed successfully', 'success');
+
+  setTimeout(() => {
+    this.routes.navigate(['/home']);
+  }, 2000);
 }
 
 

@@ -5,7 +5,7 @@
 />
 
 <div class="login-wrapper">
-  <div class="login-container">
+  <div class="login-container" [class.logging-in]="isLoggingIn">
     <!-- Logo -->
     <!-- <img
     src="https://image2url.com/images/1762776299913-3dc96ccc-0bab-42d6-9215-ab37caf47823.png"
@@ -54,7 +54,7 @@
       <span *ngIf="PasswordError" class="error">Password is required</span>
 
       <!-- Forgot -->
-      <a class="forgot-password">Forgot Password?</a>
+      <a class="forgot-password" (click)="openForgotPassword()">Forgot Password?</a>
 
       <!-- Button -->
       <button type="submit" class="login-btn" [disabled]="isLogin">
@@ -79,4 +79,317 @@
   [class.error]="snackType === 'error'"
 >
   <span class="snack-text">{{ snackMessage }}</span>
+</div>
+
+
+
+
+<div class="change-password-overlay" *ngIf="showChangePasswordPopup">
+
+  <div class="change-password-popup">
+
+    <h5>Change Password</h5>
+
+    <!-- Current Password -->
+    <div class="password-field">
+      <input
+        [type]="showOldPassword ? 'text' : 'password'"
+        placeholder="Current Password"
+        [(ngModel)]="changePassword.OLD_PASSWORD"
+        (blur)="validateCurrentPassword()"
+        (input)="oldPasswordError = false; oldPasswordValid = false; oldPasswordMessage = ''"
+        [class.border-error]="oldPasswordError"
+        [class.border-success]="oldPasswordValid"
+      />
+      <i
+        class="fa-solid"
+        [ngClass]="showOldPassword ? 'fa-eye-slash' : 'fa-eye'"
+        (click)="showOldPassword = !showOldPassword"
+      ></i>
+    </div>
+
+    <span *ngIf="showValidation && oldPasswordError" class="error-text">
+      {{ oldPasswordMessage || 'Current password is required' }}
+    </span>
+
+    <!-- New Password -->
+    <div class="password-field">
+      <input
+        [type]="showNewPassword ? 'text' : 'password'"
+        placeholder="New Password"
+        [(ngModel)]="changePassword.NEW_PASSWORD"
+        (input)="newPasswordError = false; validatePasswordPolicy(); checkPasswordMatch()"
+        [disabled]="!oldPasswordValid"
+      />
+      <i
+        class="fa-solid"
+        [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"
+        (click)="showNewPassword = !showNewPassword"
+      ></i>
+    </div>
+
+    <span *ngIf="showValidation && newPasswordError" class="error-text">
+      New password is required
+    </span>
+
+    <span *ngIf="passwordPolicyError" class="error-text">
+      {{ passwordPolicyError }}
+    </span>
+
+    <!-- Confirm Password -->
+    <div class="password-field">
+      <input
+        [type]="showConfirmPassword ? 'text' : 'password'"
+        placeholder="Re-enter New Password"
+        [(ngModel)]="changePassword.CONFIRM_PASSWORD"
+        (input)="confirmPasswordError = false; checkPasswordMatch()"
+        [class.border-error]="passwordMatch === false"
+        [class.border-success]="passwordMatch === true"
+        [disabled]="!oldPasswordValid"
+      />
+      <i
+        class="fa-solid"
+        [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"
+        (click)="showConfirmPassword = !showConfirmPassword"
+      ></i>
+    </div>
+
+    <span *ngIf="showValidation && confirmPasswordError" class="error-text">
+      Confirm password is required
+    </span>
+
+    <span
+      *ngIf="changePassword.CONFIRM_PASSWORD && passwordMatch === false"
+      class="error-text"
+    >
+      Passwords do not match
+    </span>
+
+    <div class="popup-buttons">
+
+      <button
+        class="cancel-btn"
+        (click)="closeChangePasswordPopup()"
+        [disabled]="isSavingPassword"
+      >
+        Cancel
+      </button>
+
+      <button
+      class="save-btn"
+      (click)="savePassword()"
+      [disabled]="isSavingPassword"
+    >
+
+      <span *ngIf="!isSavingPassword">
+        Save
+      </span>
+
+      <span *ngIf="isSavingPassword">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Saving...
+      </span>
+
+    </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="forgot-overlay" *ngIf="showForgotPopup">
+
+  <div class="forgot-popup">
+
+    <h5>Forgot Password</h5>
+
+    <!-- EMAIL -->
+    <div *ngIf="!showOtpBox">
+
+      <input
+        type="email"
+        placeholder="Enter your email"
+        [(ngModel)]="forgotEmail"
+        (input)="emailError=false"
+      />
+
+      <span *ngIf="emailError" class="error-text">
+        Enter a valid email
+      </span>
+
+      <button class="save-btn" (click)="sendOtp()" [disabled]="isSendingOtp">
+
+      <span *ngIf="!isSendingOtp">
+        Send OTP
+      </span>
+
+      <span *ngIf="isSendingOtp" class="sending-otp">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Sending OTP...
+      </span>
+
+    </button>
+
+    </div>
+
+
+    <!-- OTP SECTION -->
+    <div *ngIf="showOtpBox">
+
+      <p class="otp-text">Enter the OTP sent to your email</p>
+
+      <div class="otp-box-container">
+
+       <input
+        #otpInput
+        *ngFor="let box of otpArray; let i = index"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        type="text"
+        maxlength="1"
+        class="otp-box"
+        [(value)]="otpArray[i]"
+        (input)="onOtpInput($event, i)"
+        (keydown)="onOtpKeyDown($event, i)"
+        [disabled]="isSendingOtp"
+      />
+
+      </div>
+
+      <span *ngIf="otpError" class="error-text">
+        Please enter the OTP
+      </span>
+
+      <button
+        class="save-btn"
+        (click)="verifyOtp()"
+        [disabled]="otpDigits.join('').length !== otpDigits.length || isVerifyingOtp"
+      >
+
+        <span *ngIf="!isVerifyingOtp">
+          Verify OTP
+        </span>
+
+        <span *ngIf="isVerifyingOtp" class="sending-otp">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          Verifying...
+        </span>
+
+      </button>
+
+      <!-- TIMER -->
+      <div class="otp-timer">
+
+        <span *ngIf="timer > 0">
+          Resend OTP in {{timer}}s
+        </span>
+
+        <a *ngIf="timer === 0 && !isSendingOtp" (click)="resendOtp()">
+          Resend OTP
+        </a>
+
+        <span *ngIf="isSendingOtp" class="sending-otp">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          Sending...
+        </span>
+
+      </div>
+
+    </div>
+
+    <button class="cancel-btn" (click)="cancelForgotPassword()">
+      Cancel
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="reset-overlay" *ngIf="showResetPasswordPopup">
+
+  <div class="reset-popup">
+
+    <h5>Set New Password</h5>
+
+    <!-- New Password -->
+    <div class="password-field-reset">
+      <input
+        [type]="showNewPassword ? 'text' : 'password'"
+        placeholder="New Password"
+        [(ngModel)]="resetPassword.NEW_PASSWORD"
+        (input)="resetPasswordError=false; validateResetPasswordPolicy(); checkResetPasswordMatch()"
+      />
+
+      <i
+        class="fa-solid"
+        [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"
+        (click)="showNewPassword=!showNewPassword"
+      ></i>
+    </div>
+
+    <span *ngIf="resetPasswordError && !resetPassword.NEW_PASSWORD" class="error-text">
+      New password is required
+    </span>
+
+    <span *ngIf="resetPasswordPolicyError" class="error-text">
+      {{ resetPasswordPolicyError }}
+    </span>
+
+    <!-- Confirm Password -->
+    <div class="password-field-reset">
+
+      <input
+        [type]="showConfirmPassword ? 'text' : 'password'"
+        placeholder="Re-enter New Password"
+        [(ngModel)]="resetPassword.CONFIRM_PASSWORD"
+        (input)="checkResetPasswordMatch()"
+      />
+
+      <i
+        class="fa-solid"
+        [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"
+        (click)="showConfirmPassword=!showConfirmPassword"
+      ></i>
+
+    </div>
+
+    <span *ngIf="resetPasswordError && !resetPassword.CONFIRM_PASSWORD" class="error-text">
+      Confirm password is required
+    </span>
+
+    <span *ngIf="passwordMismatch" class="error-text">
+      Passwords do not match
+    </span>
+
+
+      <div class="popup-buttons">
+
+      <button class="cancel-btn" (click)="cancelResetPassword()">
+        Cancel
+      </button>
+
+      <button
+      class="save-btn"
+      (click)="updateForgotPassword()"
+      [disabled]="isUpdatingPassword"
+    >
+
+      <span *ngIf="!isUpdatingPassword">
+        Update Password
+      </span>
+
+      <span *ngIf="isUpdatingPassword" class="sending-otp">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Updating...
+      </span>
+
+    </button>
+
+    </div>
+
+  </div>
+
 </div>

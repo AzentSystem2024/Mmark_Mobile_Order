@@ -17,14 +17,56 @@
   z-index: 10;
 }
 
-.date-filter {
+.date-filter-wrapper {
   margin-left: auto;
-  padding: 6px 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Hide native arrow */
+.date-filter {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  padding: 6px 26px 6px 10px; /* right padding for caret */
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: none;
+
   font-size: 12px;
-  background: #f9fafb;
+  font-weight: 600;
+
+  
+  color: #35b5de; /* 🔵 selected text blue */
+
   cursor: pointer;
+  background: #f0f9ff; /* very light blue */
+}
+
+/* Custom caret */
+.filter-caret {
+  position: absolute;
+  right: 8px;
+  font-size: 10px;
+  color: #35b5de;
+  pointer-events: none;
+  // transition: transform 0.2s ease;
+}
+
+// /* 🔄 rotate when select is focused (open) */
+// .date-filter:focus + .filter-caret {
+//   transform: rotate(180deg);
+// }
+
+.dateoption{
+  color: #000000;
+}
+
+/* Focus state */
+.date-filter:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(53, 181, 222, 0.25);
 }
 
 .back-icon {

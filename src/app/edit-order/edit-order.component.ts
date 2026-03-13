@@ -50,6 +50,8 @@ export class EditOrderComponent {
     // ];
   
     productImage = '';
+
+    isImageLoaded = true;
   
     colorThumbs = [
     'https://mmarkgroup.in/wp-content/uploads/2024/05/03-11-3-140x195.png',
@@ -100,6 +102,25 @@ export class EditOrderComponent {
   snackType: 'success' | 'error' = 'success';
   snackTimer: any;
   
+
+  isSizeLoading = true;
+
+
+  holdTimeout: any;
+  holdInterval: any;
+
+  isLongPress = false;
+
+  LONG_PRESS_DELAY = 350;   // ms
+  REPEAT_SPEED = 120;       // ms
+
+
+  cutHoldTimeout: any;
+  cutHoldInterval: any;
+  isCutLongPress = false;
+
+  CUT_LONG_PRESS_DELAY = 350;
+  CUT_REPEAT_SPEED = 120;
   
     constructor(private router: Router,
       private service:MyserviceService,
@@ -213,6 +234,10 @@ resetScreen() {
 
   this.selectedCategory = this.editItem.catgoryID;
   this.artSearch = this.editItem.artNo;
+
+  // 👇 reset image state
+  this.productImage = '';
+  this.isImageLoaded = true;
 
   // Load colors first
   const payload = {
@@ -330,7 +355,10 @@ resetScreen() {
         'success'
       );
 
-  this.router.navigate(['/cart']);
+  setTimeout(() => {
+        this.router.navigate(['/cart']);
+      }, 1000);
+
 
   this.isSaving = false;
 }
@@ -379,9 +407,8 @@ resetScreen() {
   
   
     openImagePreview() {
-      
-      if (!this.productImage) {
-      return; // ❌ no image → do nothing
+    if (this.isImageLoaded || !this.productImage) {
+      return;
     }
     this.showImagePreview = true;
   }
@@ -521,6 +548,8 @@ resetScreen() {
   
     loadPacking(payload: any, callback?: () => void) {
 
+  this.isSizeLoading = true;
+
   this.service.getArtNoDetails(payload).subscribe((res: any) => {
 
     if (res.flag === "1") {
@@ -548,6 +577,7 @@ resetScreen() {
       packingID: x.PackingID
     }));
 
+    this.isSizeLoading = false;
 
       // ⭐ NOW SAFE TO PATCH
       callback?.();
@@ -688,9 +718,50 @@ resetScreen() {
 }
 
   
-  increaseRowQty(i: number) {
-    this.displayedSizes[i].qty++;
+  onPressStart(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault(); // 🚫 stops ghost click
+
+  this.isLongPress = false;
+
+  this.holdTimeout = setTimeout(() => {
+    this.isLongPress = true;
+
+    this.holdInterval = setInterval(() => {
+      action === 'inc'
+        ? this.increaseRowQty(index)
+        : this.decreaseRowQty(index);
+    }, this.REPEAT_SPEED);
+
+  }, this.LONG_PRESS_DELAY);
+}
+
+onPressEnd(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault();
+
+  // 👉 SHORT TAP → ONLY ONCE
+  if (!this.isLongPress) {
+    action === 'inc'
+      ? this.increaseRowQty(index)
+      : this.decreaseRowQty(index);
   }
+
+  this.clearHold();
+}
+
+onPressCancel() {
+  this.clearHold();
+}
+
+clearHold() {
+  clearTimeout(this.holdTimeout);
+  clearInterval(this.holdInterval);
+  this.isLongPress = false;
+}
+
+increaseRowQty(i: number) {
+  this.displayedSizes[i].qty++;
+  this.triggerHaptic(10);   // ✅ light feedback
+}
   
   
   blockInvalidKeys(event: KeyboardEvent) {
@@ -751,6 +822,13 @@ resetScreen() {
       }
     }
   }
+
+  //vibate feel for qty + or -
+  triggerHaptic(duration = 10) {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(duration);
+    }
+  }
   
   
   get totalQuantity() {
@@ -802,15 +880,60 @@ resetScreen() {
     this.showCutPopup = false;
   }
   
-  incCut(i: number) {
-    this.cutSizes[i].qty++;
+  onCutPressStart(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault();
+  this.isCutLongPress = false;
+
+  this.cutHoldTimeout = setTimeout(() => {
+    this.isCutLongPress = true;
+
+    this.cutHoldInterval = setInterval(() => {
+      if (action === 'inc') {
+        this.safeIncCut(index);
+      } else {
+        this.safeDecCut(index);
+      }
+    }, this.CUT_REPEAT_SPEED);
+
+  }, this.CUT_LONG_PRESS_DELAY);
+}
+
+onCutPressEnd(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault();
+
+  // 👆 single tap
+  if (!this.isCutLongPress) {
+    action === 'inc'
+      ? this.safeIncCut(index)
+      : this.safeDecCut(index);
   }
-  
-  decCut(i: number) {
-    if (this.cutSizes[i].qty > 0) {
-      this.cutSizes[i].qty--;
-    }
-  }
+
+  this.clearCutHold();
+}
+
+onCutPressCancel() {
+  this.clearCutHold();
+}
+
+clearCutHold() {
+  clearTimeout(this.cutHoldTimeout);
+  clearInterval(this.cutHoldInterval);
+  this.isCutLongPress = false;
+}
+
+safeIncCut(i: number) {
+  if (this.totalCutQty >= this.activeCutRow?.PairQty) return;
+
+  this.cutSizes[i].qty++;
+  this.triggerHaptic(10);
+}
+
+safeDecCut(i: number) {
+  if (this.cutSizes[i].qty <= 0) return;
+
+  this.cutSizes[i].qty--;
+  this.triggerHaptic(10);
+}
   
   validateCutQty(item: any) {
     if (item.qty === null || item.qty === undefined || item.qty === '') {

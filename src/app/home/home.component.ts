@@ -71,6 +71,10 @@ export class HomeComponent {
 
   typeHistory: any;
 
+  dealerCache: any[] | null = null;
+  subDealerCache: any[] | null = null;
+  retailerCache: any[] | null = null;
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
@@ -79,11 +83,22 @@ export class HomeComponent {
     if (!target.closest('.dropdown-box')) {
       this.showDealerList = false;
       this.showRetailerList = false;
+      this.showSubDealerList = false;
     }
   }
 
   ngOnInit() {
     const logDataStr = sessionStorage.getItem('LogData');
+
+    const shouldRefresh = sessionStorage.getItem('REFRESH_RETAILER_CACHE');
+
+    if (shouldRefresh === 'true') {
+
+      //  clear only retailer cache
+      this.retailerCache = null;
+
+      sessionStorage.removeItem('REFRESH_RETAILER_CACHE');
+    }
 
     if (logDataStr) {
       const logData = JSON.parse(logDataStr);
@@ -239,10 +254,58 @@ export class HomeComponent {
     type: 'DEALER' | 'RETAILER' | 'SUB_DEALER',
     isRestore = false,
   ) {
+
+
+    // ================= DEALER =================
+  if (type === 'DEALER' && this.dealerCache) {
+    this.dealers = [...this.dealerCache];
+    this.filteredDealers = [...this.dealers];
+
+    if (!isRestore) {
+      setTimeout(() => {
+        this.dealerInput?.nativeElement.focus();
+        this.showDealerList = true;
+      });
+    }
+    return;
+  }
+
+  // ================= SUB DEALER =================
+  if (type === 'SUB_DEALER' && this.subDealerCache) {
+    this.subDealers = [...this.subDealerCache];
+    this.filteredSubDealers = [...this.subDealers];
+
+    if (!isRestore) {
+      setTimeout(() => {
+        this.subDealerInput?.nativeElement.focus();
+        this.showSubDealerList = true;
+      });
+    }
+    return;
+  }
+
+  // ================= RETAILER =================
+  if (type === 'RETAILER' && this.retailerCache) {
+    this.retailers = [...this.retailerCache];
+    this.filteredRetailers = [...this.retailers];
+
+    if (!isRestore) {
+      setTimeout(() => {
+        this.retailerInput?.nativeElement.focus();
+        this.showRetailerList = true;
+      });
+    }
+    return;
+  }
+
     const payload = { NAME: type };
 
     this.service.get_DropDown_Data(payload).subscribe((res: any) => {
+
+      const data = res || [];
+
       if (type === 'DEALER') {
+        this.dealerCache = [...data];
         this.dealers = res || [];
         this.filteredDealers = [...this.dealers];
 
@@ -255,6 +318,7 @@ export class HomeComponent {
       }
 
       if (type === 'SUB_DEALER') {
+        this.subDealerCache = [...data];
         this.subDealers = res || [];
         this.filteredSubDealers = [...this.subDealers];
 
@@ -267,6 +331,7 @@ export class HomeComponent {
       }
 
       if (type === 'RETAILER') {
+        this.retailerCache = [...data];
         this.retailers = res || [];
         this.filteredRetailers = [...this.retailers];
 
@@ -327,6 +392,10 @@ export class HomeComponent {
           // clear session
           localStorage.clear();
           sessionStorage.clear();
+
+          this.dealerCache = null;
+          this.subDealerCache = null;
+          this.retailerCache = null;
 
           // trigger logo animation
 

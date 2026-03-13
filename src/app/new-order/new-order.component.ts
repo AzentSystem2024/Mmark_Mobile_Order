@@ -5,6 +5,9 @@ import { Router } from '@angular/router';
 import { HostListener, ElementRef, ViewChild } from '@angular/core';
 import { MyserviceService } from '../myservice.service';
 import { ToastrService } from 'ngx-toastr';
+import { NetworkService } from '../network.service';
+import { retryWhen, scan, delayWhen, timer, fromEvent } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 
 
 
@@ -112,10 +115,33 @@ colorStateMap: {
   snackType: 'success' | 'error' = 'success';
   snackTimer: any;
 
+  artnoDataCache: Map<string, any[]> = new Map();
+
+  isSizeLoading = false;
+  isImageLoaded = false
+
+  holdTimeout: any;
+  holdInterval: any;
+
+  isLongPress = false;
+
+  LONG_PRESS_DELAY = 350;   // ms
+  REPEAT_SPEED = 120;       // ms
+
+
+  cutHoldTimeout: any;
+  cutHoldInterval: any;
+  isCutLongPress = false;
+
+  CUT_LONG_PRESS_DELAY = 350;
+  CUT_REPEAT_SPEED = 120;
+
+
 
   constructor(private router: Router,
     private service:MyserviceService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    public network:NetworkService
   ) {}
 
   @HostListener('window:popstate', ['$event'])
@@ -128,6 +154,10 @@ onPopState(event: any) {
 }
 
   ngOnInit() {
+
+  // window.addEventListener('app-refresh', this.reloadData);
+
+
 
   history.pushState(null, '', location.href);
 
@@ -184,6 +214,15 @@ onPopState(event: any) {
   this.loadCategories();
 }
 
+//   ngOnDestroy() {
+//   window.removeEventListener('app-refresh', this.reloadData);
+//  }
+
+// reloadData = () => {
+//   this.clearSelection();
+//   this.loadCategories();
+// };
+
   goToCart() {
 
   if (this.hasUnsavedChanges()) {
@@ -204,13 +243,39 @@ onPopState(event: any) {
 
   loadCategories() {
 
-  const payload = {
-    NAME: "CATEGORY"
-  };
+  const payload = { NAME: "CATEGORY" };
 
-  this.service.get_DropDown_Data(payload).subscribe((res: any) => {
-    this.categories = res;
-  });
+  this.service.get_DropDown_Data(payload)
+    .pipe(
+      retryWhen(errors =>
+        errors.pipe(
+          scan((retryCount, error) => {
+
+            if (retryCount >= 5) {
+              throw error; // stop after 5 retries
+            }
+
+            console.log('Retry attempt:', retryCount + 1);
+            return retryCount + 1;
+
+          }, 0),
+
+          delayWhen(() =>
+            navigator.onLine
+              ? timer(2000) // wait 2 sec if online
+              : fromEvent(window, 'online') // wait until internet returns
+          )
+        )
+      )
+    )
+    .subscribe({
+      next: (res: any) => {
+        this.categories = res || [];
+      },
+      error: (err) => {
+        console.error('Failed after multiple retries', err);
+      }
+    });
 }
 
 loadArtNos() {
@@ -236,9 +301,11 @@ loadArtNos() {
 
     // Tab
   this.selectedTab = this.showSemiTab ? 'Set' : 'Case';
+
   
   this.service.getArtNo(this.selectedCategory).subscribe((res:any)=>{
     this.artNos = res;
+ 
   });
 
   setTimeout(() => {
@@ -286,6 +353,9 @@ closeImagePreview() {
 //     this.currentImage--;
 //   }
 // }
+
+
+
 
 filterArtNos() {
   const term = this.artSearch.trim().toLowerCase();
@@ -387,18 +457,27 @@ selectArt(art: string) {
 }
 
 
-
   loadPacking(payload: any) {
 
+  this.isSizeLoading = true;
+  this.isImageLoaded = true;
+
   this.service.getArtNoDetails(payload).subscribe((res: any) => {
+
+    this.isSizeLoading = false;
 
     if (res.flag === "1") {
 
       // ✅ SET PRODUCT IMAGE
       if (res.IMAGE_NAME) {
+        
         this.productImage = `https://mmarkonline.com/artimages/${res.IMAGE_NAME}`;
+        this.isImageLoaded = false;
       } else {
+        
         this.productImage = 'https://mmarkonline.com/artimages/NoImage.jpg';
+        this.isImageLoaded = false;
+        
       }
 
       this.setSizes = (res.Set || []).map((x: any) => ({
@@ -425,6 +504,10 @@ selectArt(art: string) {
         packingID : x.PackingID
       }));
     }
+  },
+   () => {
+    this.isSizeLoading = false;
+    this.isImageLoaded = false;
   });
 }
 
@@ -769,8 +852,50 @@ get displayedSizes() {
   return this.caseSizes || [];
 }
 
+
+onPressStart(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault(); // 🚫 stops ghost click
+
+  this.isLongPress = false;
+
+  this.holdTimeout = setTimeout(() => {
+    this.isLongPress = true;
+
+    this.holdInterval = setInterval(() => {
+      action === 'inc'
+        ? this.increaseRowQty(index)
+        : this.decreaseRowQty(index);
+    }, this.REPEAT_SPEED);
+
+  }, this.LONG_PRESS_DELAY);
+}
+
+onPressEnd(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault();
+
+  // 👉 SHORT TAP → ONLY ONCE
+  if (!this.isLongPress) {
+    action === 'inc'
+      ? this.increaseRowQty(index)
+      : this.decreaseRowQty(index);
+  }
+
+  this.clearHold();
+}
+
+onPressCancel() {
+  this.clearHold();
+}
+
+clearHold() {
+  clearTimeout(this.holdTimeout);
+  clearInterval(this.holdInterval);
+  this.isLongPress = false;
+}
+
 increaseRowQty(i: number) {
   this.displayedSizes[i].qty++;
+  this.triggerHaptic(10);   // ✅ light feedback
   this.saveCurrentColorState();
 }
 
@@ -824,6 +949,7 @@ validateRowQty(row: any) {
 decreaseRowQty(i: number) {
   if (this.displayedSizes[i].qty > 0) {
     this.displayedSizes[i].qty--;
+    this.triggerHaptic(10); // ✅ only when valid
 
     // If CUT row becomes zero → clear combination
     if (
@@ -834,6 +960,13 @@ decreaseRowQty(i: number) {
     }
   }
   this.saveCurrentColorState();
+}
+
+//vibate feel for qty + or -
+triggerHaptic(duration = 10) {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(duration);
+  }
 }
 
 
@@ -885,14 +1018,60 @@ closeCutPopup() {
   this.showCutPopup = false;
 }
 
-incCut(i: number) {
-  this.cutSizes[i].qty++;
+
+onCutPressStart(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault();
+  this.isCutLongPress = false;
+
+  this.cutHoldTimeout = setTimeout(() => {
+    this.isCutLongPress = true;
+
+    this.cutHoldInterval = setInterval(() => {
+      if (action === 'inc') {
+        this.safeIncCut(index);
+      } else {
+        this.safeDecCut(index);
+      }
+    }, this.CUT_REPEAT_SPEED);
+
+  }, this.CUT_LONG_PRESS_DELAY);
 }
 
-decCut(i: number) {
-  if (this.cutSizes[i].qty > 0) {
-    this.cutSizes[i].qty--;
+onCutPressEnd(index: number, action: 'inc' | 'dec', e: Event) {
+  e.preventDefault();
+
+  // 👆 single tap
+  if (!this.isCutLongPress) {
+    action === 'inc'
+      ? this.safeIncCut(index)
+      : this.safeDecCut(index);
   }
+
+  this.clearCutHold();
+}
+
+onCutPressCancel() {
+  this.clearCutHold();
+}
+
+clearCutHold() {
+  clearTimeout(this.cutHoldTimeout);
+  clearInterval(this.cutHoldInterval);
+  this.isCutLongPress = false;
+}
+
+safeIncCut(i: number) {
+  if (this.totalCutQty >= this.activeCutRow?.PairQty) return;
+
+  this.cutSizes[i].qty++;
+  this.triggerHaptic(10);
+}
+
+safeDecCut(i: number) {
+  if (this.cutSizes[i].qty <= 0) return;
+
+  this.cutSizes[i].qty--;
+  this.triggerHaptic(10);
 }
 
 validateCutQty(item: any) {
@@ -1164,9 +1343,18 @@ performCategoryChange() {
   this.showCutPopup = false;
   this.selectedTab = this.showSemiTab ? 'Set' : 'Case';
 
+  const cacheKey = `${this.selectedCategory}`;
+
+  if (this.artnoDataCache.has(cacheKey)) {
+    this.artNos = this.artnoDataCache.get(cacheKey)!;
+    return;
+  }
+
   this.service.getArtNo(this.selectedCategory)
       .subscribe((res:any)=>{
         this.artNos = res;
+
+        this.artnoDataCache.set(cacheKey, [...this.artNos]);
       });
 
   setTimeout(() => {

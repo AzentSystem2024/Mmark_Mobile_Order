@@ -69,7 +69,7 @@
         <div class="size-header">
           <span class="qty-badge top">{{ getSemiTotal(item) }}</span>
 
-          <span class="size-title">Set</span>
+          <span class="size-title">Semi</span>
           <span class="qty-text">Qty</span>
         </div>
 
@@ -89,7 +89,7 @@
         <div class="size-header">
           <span class="qty-badge top">{{ getCaseTotal(item) }}</span>
 
-          <span class="size-title">Set</span>
+          <span class="size-title">Case</span>
           <span class="qty-text">Qty</span>
         </div>
 
@@ -131,7 +131,10 @@
 
 
   <div class="submit-bar" *ngIf="cartItems.length">
-    <button class="submit-btn" (click)="openSubmitConfirm()" [disabled]="isSaving">SUBMIT</button>
+    <button class="submit-btn" 
+    (click)="openSubmitConfirm()" 
+    [disabled]="isSaving">
+    SUBMIT</button>
   </div>
 
 
@@ -180,7 +183,17 @@
 </div>
 
 <div class="loader-overlay" *ngIf="isSaving">
-  <i class="fa-solid fa-spinner fa-spin"></i>
+  <div class="loader-content">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+
+    <div class="loader-text">
+      {{ isRetrying ? 'Network issue. Retrying…' : 'Placing your order…' }}
+    </div>
+
+    <div class="loader-sub" *ngIf="isRetrying">
+      Attempt {{ retryCount + 1 }} of {{ maxRetries + 1 }}
+    </div>
+  </div>
 </div>
 
 

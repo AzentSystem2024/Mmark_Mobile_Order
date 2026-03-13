@@ -295,6 +295,49 @@ getColumnClass(item: any): string {
   return 'three-col'; // 🔥 FIX
 }
 
+
+get totalSetQty(): number {
+  if (!this.order?.items) return 0;
+
+  return this.order.items.reduce(
+    (sum, item) => sum + this.getSetTotal(item),
+    0
+  );
+}
+
+get totalSemiQty(): number {
+  if (!this.order?.items) return 0;
+
+  return this.order.items.reduce(
+    (sum, item) => sum + this.getSemiTotal(item),
+    0
+  );
+}
+
+get totalCaseQty(): number {
+  if (!this.order?.items) return 0;
+
+  return this.order.items.reduce(
+    (sum, item) => sum + this.getCaseTotal(item),
+    0
+  );
+}
+
+
+showSetTotal(): boolean {
+  return this.userType != 4 && this.totalSetQty > 0;
+}
+
+showSemiTotal(): boolean {
+  return this.userType != 4 && this.totalSemiQty > 0;
+}
+
+showCaseTotal(): boolean {
+  return this.totalCaseQty > 0;
+}
+
+
+
 }
 
 

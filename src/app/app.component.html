@@ -1,1 +1,13 @@
-<router-outlet></router-outlet>
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" *ngIf="showOffline">
+  No internet connection
+</div>
+
+<!-- BACK ONLINE -->
+<div class="online-banner" *ngIf="showBackOnline">
+  Back online
+</div>
+
+<!-- <app-pull-to-refresh (refresh)="onGlobalRefresh()"> -->
+  <router-outlet></router-outlet>
+<!-- </app-pull-to-refresh> -->

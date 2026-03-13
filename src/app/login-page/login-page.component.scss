@@ -22,6 +22,12 @@ body {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
+.login-container.logging-in {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: .3s ease;
+}
+
 .logo {
   width: 140px;
   margin-bottom: 25px;
@@ -104,10 +110,15 @@ h3 {
   transform: scale(1.03);
 }
 
+
 .input-box input:focus {
   border-color: #30b3db;
   box-shadow: 0 0 0 3px rgba(48,179,219,.15);
   transition: .2s;
+}
+
+.login-btn:active {
+  transform: scale(0.97);
 }
 
 .toggle-eye {
@@ -117,8 +128,15 @@ h3 {
   transform: translateY(-50%);
   cursor: pointer;
   color: #aaa;
+  transition: color .15s ease, transform .1s ease;
+}
+.toggle-eye:hover {
+  color: #555;
 }
 
+.toggle-eye:active {
+  transform: translateY(-50%) scale(0.9);
+}
 
 
 .login-container {
@@ -278,5 +296,316 @@ h3 {
 
 
 
+.change-password-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.change-password-popup {
+  width: 340px;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.change-password-popup h3 {
+  text-align: center;
+}
+
+.change-password-popup input {
+  height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.save-btn {
+  flex: 1;
+  background: #35b5de;
+  color: white;
+  border: none;
+  height: 40px;
+  border-radius: 6px;
+}
+
+.cancel-btn {
+  flex: 1;
+  background: #e4e4e4;
+  border: none;
+  height: 40px;
+  border-radius: 6px;
+}
+
+.border-error {
+  border: 2px solid #ff4d4f !important;
+}
+
+.border-success {
+  border: 2px solid #2ecc71 !important;
+}
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field input {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.password-field i {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #777;
+}
+
+.password-field input:focus {
+  outline: none;
+  border: 1px solid #35b5de;
+  box-shadow: 0 0 0 2px rgba(53, 181, 222, 0.15);
+}
+
+.error-text {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.change-password-popup h5 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #333;
+  position: relative;
+}
+
+/* optional underline style */
+.change-password-popup h5::after {
+  content: "";
+  width: 40px;
+  height: 3px;
+  background: #020202;
+  display: block;
+  margin: 6px auto 0;
+  border-radius: 3px;
+}
+
+
+
+.forgot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.forgot-popup {
+  width: 340px;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.forgot-popup h5 {
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.forgot-popup input {
+  width: 100%;
+  height: 40px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.forgot-popup input:focus {
+  outline: none;
+  border: 1px solid #35b5de;
+  box-shadow: 0 0 0 2px rgba(53, 181, 222, 0.15);
+}
+
+.forgot-popup button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.otp-box-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.otp-box {
+  width: 45px;
+  height: 45px;
+  text-align: center;
+  font-size: 18px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.otp-box:focus {
+  border-color: #35b5de;
+  outline: none;
+}
+
+.otp-text {
+  font-size: 13px;
+  color: #555;
+}
+
+.otp-timer {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.otp-timer a {
+  color: #35b5de;
+  cursor: pointer;
+}
+
+
+.sending-otp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sending-otp i {
+  font-size: 14px;
+}
+
+
+
+/* Overlay background */
+.reset-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200; /* higher than forgot popup */
+}
+
+/* Popup card */
+.reset-popup {
+  width: 360px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px 28px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+  animation: popupFade 0.25s ease;
+}
+
+/* Title */
+.reset-popup h5 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  color: #333;
+  position: relative;
+}
+
+.reset-popup h5::after {
+  content: "";
+  width: 40px;
+  height: 3px;
+  background: #000;
+  display: block;
+  margin: 6px auto 0;
+  border-radius: 3px;
+}
+
+
+/* Buttons */
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* Animation */
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+   transform: translateY(0) scale(1);
+  }
+}
+
+
+
+/* Password field */
+.password-field-reset {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.password-field-reset input {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.password-field-reset input:focus {
+  outline: none;
+  border: 1px solid #35b5de;
+  box-shadow: 0 0 0 2px rgba(53, 181, 222, 0.15);
+}
+
+
+/* Eye icon */
+.password-field-reset i {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #777;
+}
 
 

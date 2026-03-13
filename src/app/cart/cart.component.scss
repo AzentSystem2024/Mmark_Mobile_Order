@@ -296,17 +296,37 @@
 .loader-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 99999;
 }
 
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.loader-content i {
+  font-size: 28px;
+  color: #35b5de;
+}
+
+.loader-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+
 .cart-item-wrapper {
   background: #fff;
   border-radius: 12px;
-  margin: 12px;
+  margin: 6px 12px;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
@@ -424,3 +444,4 @@
     transform: translateX(-50%) translateY(0);
   }
 }
+

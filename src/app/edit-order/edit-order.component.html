@@ -19,7 +19,20 @@
   <div class="product-info-row">
     <!-- LEFT : IMAGE -->
     <div class="product-image-wrapper" (click)="openImagePreview()">
-      <img [src]="productImage" class="main-product" />
+      <!-- Skeleton -->
+      <div
+        class="image-skeleton"
+        *ngIf="isImageLoaded"
+      ></div>
+
+      <!-- Real image -->
+      <img
+        *ngIf="productImage"
+        [src]="productImage"
+        class="main-product"
+        (load)="isImageLoaded = false"
+        (error)="isImageLoaded = false"
+      />
     </div>
 
     <!-- IMAGE PREVIEW -->
@@ -148,6 +161,19 @@
 
   <!-- Size Quantity Table -->
   <div class="size-table">
+
+     <!-- 🔄 SKELETON -->
+  <div *ngIf="isSizeLoading">
+    <div class="table-header skeleton-header"></div>
+
+    <div class="table-row skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+      <div class="sk sk-size"></div>
+      <div class="sk sk-qty"></div>
+    </div>
+  </div>
+
+    <!-- ✅ REAL TABLE -->
+  <div *ngIf="!isSizeLoading">
     <div class="table-header">
       <span>Size(inch)</span>
       <span>Quantity</span>
@@ -175,7 +201,15 @@
       </div>
 
       <div class="row-qty">
-        <button class="qty-btn" (click)="decreaseRowQty(i)">−</button>
+        <button class="qty-btn" 
+        [disabled]="row.qty === 0"
+        (pointerdown)="onPressStart(i, 'dec', $event)"
+        (pointerup)="onPressEnd(i, 'dec', $event)"
+        (pointerleave)="onPressCancel()"
+        (pointercancel)="onPressCancel()"
+        >
+        −
+      </button>
 
         <input
           type="number"
@@ -193,7 +227,10 @@
         <button
           class="qty-btn"
           *ngIf="!row.size.toLowerCase().includes('cut')"
-          (click)="increaseRowQty(i)"
+          (pointerdown)="onPressStart(i, 'inc', $event)"
+          (pointerup)="onPressEnd(i, 'inc', $event)"
+          (pointerleave)="onPressCancel()"
+          (pointercancel)="onPressCancel()"
         >
           +
         </button>
@@ -216,7 +253,8 @@
     </div>
   </ng-template>
 
-</div>
+    </div>
+  </div>
 
   </div>
 
@@ -253,7 +291,15 @@
           <span>{{ item.size }}</span>
 
           <div class="row-qty">
-            <button class="qty-btn" (click)="decCut(i)">−</button>
+            <button class="qty-btn" 
+            [disabled]="item.qty === 0"
+            (pointerdown)="onCutPressStart(i, 'dec', $event)"
+            (pointerup)="onCutPressEnd(i, 'dec', $event)"
+            (pointerleave)="onCutPressCancel()"
+            (pointercancel)="onCutPressCancel()"
+            >
+            −
+          </button>
             <input
               type="number"
               class="qty-input"
@@ -264,8 +310,11 @@
               (blur)="validateCutQty(item)"
             />
             <button
-              (click)="incCut(i)"
               class="qty-btn"
+              (pointerdown)="onCutPressStart(i, 'inc', $event)"
+              (pointerup)="onCutPressEnd(i, 'inc', $event)"
+              (pointerleave)="onCutPressCancel()"
+              (pointercancel)="onCutPressCancel()"
               [disabled]="totalCutQty >= activeCutRow?.PairQty"
             >
               +
