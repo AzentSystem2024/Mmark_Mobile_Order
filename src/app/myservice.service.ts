@@ -40,7 +40,7 @@ export class MyserviceService {
     return this.http.post(`${this.baseUrl}DropDown/RetailerDealer`, payload);
   }
 
-  
+
   getArtNo(categoryId: string) {
     return this.http.post(`${this.baseUrl}NewOrder/GetArtNo`, {
       CategoryID: categoryId,

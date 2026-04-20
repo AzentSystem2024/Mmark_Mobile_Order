@@ -75,6 +75,12 @@ export class HomeComponent {
   subDealerCache: any[] | null = null;
   retailerCache: any[] | null = null;
 
+  retailerDealers: any[] = [];
+  filteredRetailerDealers: any[] = [];
+  retailerDealerSearch = '';
+  showRetailerDealerList = false;
+  selectedRetailerDealer: number | null = null;
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
@@ -110,7 +116,42 @@ export class HomeComponent {
       this.distributorName = logData?.DISTRIBUTOR_NAME || '';
       this.retailerName = logData?.RETAILER_NAME || '';
       this.userName = logData?.USER_NAME || '';
+
+      if (this.userType === 13) {
+
+      this.selectedType = 'RETAILER';
+
+      const userID = Number(logData?.USER_ID);
+
+      // retailer id = USER_ID - 50000
+      this.selectedRetailer = userID - 50000;
+
+
+      const payload = {
+        RETAILER_ID: this.selectedRetailer
+      };
+
+      this.service.get_Retailer_Delaer_DropDown_Data(payload)
+        .subscribe((res: any) => {
+
+          this.retailerDealers = res || [];
+          this.filteredRetailerDealers = [...this.retailerDealers];
+
+          // auto select if only one dealer
+          if (this.retailerDealers.length === 1) {
+            const dealer = this.retailerDealers[0];
+            this.selectedRetailerDealer = dealer.ID;
+            this.retailerDealerSearch = dealer.DESCRIPTION;
+          }
+        });
     }
+    }
+
+
+    
+
+
+
 
     const orderForStr = sessionStorage.getItem('ORDER_FOR');
 
@@ -153,20 +194,43 @@ export class HomeComponent {
   }
 
   filterRetailers() {
-    const term = this.retailerSearch.trim().toLowerCase();
 
-    if (!term) {
-      this.filteredRetailers = [...this.retailers];
-      this.showRetailerList = true;
-      return;
-    }
+  const term = this.retailerSearch.trim().toLowerCase();
 
-    this.filteredRetailers = this.retailers.filter((r) =>
-      r.DESCRIPTION?.toLowerCase().startsWith(term),
-    );
+  // 🔥 If retailer text cleared manually
+  if (!term) {
 
+    this.selectedRetailer = null;
+
+    // reset dealer dropdown
+    this.retailerDealerSearch = '';
+    this.selectedRetailerDealer = null;
+    this.retailerDealers = [];
+    this.filteredRetailerDealers = [];
+    this.showRetailerDealerList = false;
+
+    this.filteredRetailers = [...this.retailers];
     this.showRetailerList = true;
+    return;
   }
+
+  // 🔥 if user edits retailer text after selection
+  if (this.selectedRetailer) {
+    this.selectedRetailer = null;
+
+    this.retailerDealerSearch = '';
+    this.selectedRetailerDealer = null;
+    this.retailerDealers = [];
+    this.filteredRetailerDealers = [];
+    this.showRetailerDealerList = false;
+  }
+
+  this.filteredRetailers = this.retailers.filter((r) =>
+    r.DESCRIPTION?.toLowerCase().startsWith(term)
+  );
+
+  this.showRetailerList = true;
+}
 
   filterDealers() {
     const term = this.dealerSearch.trim().toLowerCase();
@@ -201,15 +265,80 @@ export class HomeComponent {
   }
 
   selectRetailer(r: any) {
-    if (this.hasCartItems() && this.selectedRetailer !== r.ID) {
-      this.toastr.warning('Clear cart before changing customer');
-      return;
-    }
-
-    this.selectedRetailer = r.ID;
-    this.retailerSearch = r.DESCRIPTION;
-    this.showRetailerList = false;
+  if (this.hasCartItems() && this.selectedRetailer !== r.ID) {
+    this.toastr.warning('Clear cart before changing customer');
+    return;
   }
+
+  this.selectedRetailer = r.ID;
+  this.retailerSearch = r.DESCRIPTION;
+  this.showRetailerList = false;
+
+  const payload = { RETAILER_ID: r.ID };
+
+  this.service.get_Retailer_Delaer_DropDown_Data(payload).subscribe((res: any) => {
+
+    this.retailerDealers = res || [];
+    this.filteredRetailerDealers = [...this.retailerDealers];
+
+    //  Auto select if only one dealer
+    if (this.retailerDealers.length === 1) {
+
+      const dealer = this.retailerDealers[0];
+
+      this.selectedRetailerDealer = dealer.ID;
+      this.retailerDealerSearch = dealer.DESCRIPTION;
+
+      this.showRetailerDealerList = false;
+
+    } else {
+
+      // show dropdown normally
+      this.showRetailerDealerList = true;
+    }
+  });
+}
+
+
+  filterRetailerDealers() {
+
+  const term = this.retailerDealerSearch.trim().toLowerCase();
+
+  if (!term) {
+    this.filteredRetailerDealers = [...this.retailerDealers];
+    this.showRetailerDealerList = true;
+    return;
+  }
+
+  this.filteredRetailerDealers = this.retailerDealers.filter(d =>
+    d.DESCRIPTION?.toLowerCase().startsWith(term)
+  );
+
+  this.showRetailerDealerList = true;
+}
+
+  selectRetailerDealer(d:any){
+
+  if (this.hasCartItems() && this.selectedRetailerDealer !== d.ID) {
+    this.toastr.warning('Clear cart before changing customer');
+    return;
+  }
+
+  this.selectedRetailerDealer = d.ID;
+  this.retailerDealerSearch = d.DESCRIPTION;
+  this.showRetailerDealerList = false;
+}
+
+  clearRetailerDealerSearch() {
+
+  if (this.hasCartItems()) return;
+
+  this.retailerDealerSearch = '';
+  this.selectedRetailerDealer = null;
+
+  this.filteredRetailerDealers = [...this.retailerDealers];
+  this.showRetailerDealerList = true;
+}
 
   selectSubDealer(s: any) {
     if (this.hasCartItems() && this.selectedSubDealer !== s.ID) {
@@ -415,13 +544,16 @@ export class HomeComponent {
   }
 
   goToNewOrder() {
-    if (this.showDealerRetailerSelect) {
+    if (this.showDealerRetailerSelect || this.userType === 13) {
       if (this.selectedType === 'DEALER' && !this.selectedDealer) {
         this.toastr.warning(
           'Please select a Dealer before creating a new order',
         );
         return;
       }
+
+      
+
 
       if (this.selectedType === 'SUB_DEALER' && !this.selectedSubDealer) {
         this.toastr.warning(
@@ -430,13 +562,19 @@ export class HomeComponent {
         return;
       }
 
-      if (this.selectedType === 'RETAILER' && !this.selectedRetailer) {
-        this.toastr.warning(
-          'Please select a Retailer before creating a new order',
-        );
+      if (this.selectedType === 'RETAILER') {
+
+      if (!this.selectedRetailer) {
+        this.toastr.warning('Please select a Retailer before creating a new order');
         return;
       }
 
+      // NEW VALIDATION
+      if (!this.selectedRetailerDealer) {
+        this.toastr.warning('Please select a Dealer for the selected Retailer');
+        return;
+      }
+    }
       // optional: store selection
       sessionStorage.setItem(
         'ORDER_FOR',
@@ -444,12 +582,23 @@ export class HomeComponent {
           DEALER_ID: this.selectedDealer,
           SUB_DEALER_ID: this.selectedSubDealer,
           RETAILER_ID: this.selectedRetailer,
+          RETAILER_DEALER_ID: this.selectedRetailerDealer,
           DEALER_NAME: this.dealerSearch,
           SUB_DEALER_NAME: this.subDealerSearch,
           RETAILER_NAME: this.retailerSearch,
         }),
       );
     }
+
+
+    // VALIDATION FOR userType = 13
+      if (this.userType === 13) {
+
+        if (!this.selectedRetailerDealer) {
+          this.toastr.warning('Please select a Dealer before creating a new order');
+          return;
+        }
+      }
 
     this.router.navigate(['/new-order']);
   }
@@ -504,8 +653,16 @@ export class HomeComponent {
 
   this.retailerSearch = '';
   this.selectedRetailer = null;
+
   this.filteredRetailers = [...this.retailers];
   this.showRetailerList = true;
+
+  // 🔥 reset dealer dropdown
+  this.retailerDealerSearch = '';
+  this.selectedRetailerDealer = null;
+  this.retailerDealers = [];
+  this.filteredRetailerDealers = [];
+  this.showRetailerDealerList = false;
 
   setTimeout(() => {
     this.retailerInput?.nativeElement.focus();

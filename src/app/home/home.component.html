@@ -200,7 +200,7 @@
     <!-- ================= RETAILER DROPDOWN ================= -->
     <div
       class="dropdown-wrapper dropdown-box"
-      *ngIf="showDealerRetailerSelect && selectedType === 'RETAILER'"
+      *ngIf="showDealerRetailerSelect && selectedType === 'RETAILER' && userType !== 13"
     >
       <div class="input-container">
          <!-- 🔍 Search icon -->
@@ -239,6 +239,50 @@
         </div>
       </div>
     </div>
+
+     <!-- ================= RETAILER DEALER DROPDOWN ================= -->
+
+<div
+  class="dropdown-wrapper dropdown-box"
+  *ngIf="selectedType === 'RETAILER' || userType === 13"
+>
+  <div class="input-container">
+
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+
+    <input
+      type="text"
+      class="search-input with-left-icon"
+      placeholder="Search Dealer"
+      [(ngModel)]="retailerDealerSearch"
+      (input)="filterRetailerDealers()"
+      [disabled]="!selectedRetailer"
+    />
+
+    <i
+      class="fa-solid fa-xmark clear-icon"
+      *ngIf="retailerDealerSearch"
+      (click)="clearRetailerDealerSearch()"
+    ></i>
+
+  </div>
+
+  <div class="dropdown-list" *ngIf="showRetailerDealerList">
+
+    <div
+      class="dropdown-item"
+      *ngFor="let d of filteredRetailerDealers"
+      (click)="selectRetailerDealer(d)"
+    >
+      {{ d.DESCRIPTION }}
+    </div>
+
+    <div class="dropdown-empty" *ngIf="!filteredRetailerDealers.length">
+      No results found
+    </div>
+
+  </div>
+</div>
 
     <button class="primary-btn" (click)="goToNewOrder()">
       <i class="fa-solid fa-plus"></i>

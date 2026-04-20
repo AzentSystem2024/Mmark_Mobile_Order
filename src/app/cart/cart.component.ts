@@ -329,19 +329,20 @@ submitOrder() {
 
 trySubmit() {
   const payload = this.buildPayload();
+  console.log(payload,"Payload")
 
-  this.service.saveNewOrder(payload).subscribe({
-    next: (res: any) => {
-      if (res?.flag === '1') {
-        this.handleSuccess(res.message);
-      } else {
-        this.handleFailure(res?.message || 'Failed to submit order');
-      }
-    },
-    error: () => {
-      this.handleRetry();
-    }
-  });
+  // this.service.saveNewOrder(payload).subscribe({
+  //   next: (res: any) => {
+  //     if (res?.flag === '1') {
+  //       this.handleSuccess(res.message);
+  //     } else {
+  //       this.handleFailure(res?.message || 'Failed to submit order');
+  //     }
+  //   },
+  //   error: () => {
+  //     this.handleRetry();
+  //   }
+  // });
 }
 
 handleFailure(message: string) {
@@ -404,6 +405,7 @@ buildPayload() {
   let RETAILER_ID = 0;
   let SUB_DEALER_ID = 0;
 
+  
   /* ================= USER TYPE RULES ================= */
 
   if (userType === 4) {
@@ -414,8 +416,11 @@ buildPayload() {
   }
 
   if (userType === 13) {
+    const orderFor = orderForStr ? JSON.parse(orderForStr) : null;
+    const dealerID = orderFor?.RETAILER_DEALER_ID;
+
     // Retailer-capable user
-    DEALER_ID = 0;
+    DEALER_ID = dealerID;
     RETAILER_ID = login.RETAILER_ID || 0;
     SUB_DEALER_ID = 0;
   }
@@ -429,8 +434,9 @@ buildPayload() {
     const dealerId = orderFor?.DEALER_ID;
     const retailerId = orderFor?.RETAILER_ID;
     const subDealerID = orderFor?.SUB_DEALER_ID;
+    const retailerDealerID = orderFor?.RETAILER_DEALER_ID;
   if (retailerId) {
-        DEALER_ID = 0;
+        DEALER_ID = retailerDealerID;
         SUB_DEALER_ID = 0;
         RETAILER_ID = retailerId;
       }
