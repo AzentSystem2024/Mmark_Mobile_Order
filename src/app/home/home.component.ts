@@ -159,11 +159,36 @@ export class HomeComponent {
       const orderFor = JSON.parse(orderForStr);
 
       if (orderFor.RETAILER_ID) {
-        this.selectedType = 'RETAILER';
-        this.typeHistory = this.selectedType;
-        this.selectedRetailer = orderFor.RETAILER_ID;
-        this.retailerSearch = orderFor.RETAILER_NAME;
-      } else if (orderFor.SUB_DEALER_ID) {
+
+  this.selectedType = 'RETAILER';
+  this.typeHistory = this.selectedType;
+
+  this.selectedRetailer = orderFor.RETAILER_ID;
+  this.retailerSearch = orderFor.RETAILER_NAME;
+
+  // ✅ CALL DEALER API
+  const payload = {
+    RETAILER_ID: this.selectedRetailer
+  };
+
+  this.service.get_Retailer_Delaer_DropDown_Data(payload)
+    .subscribe((res: any) => {
+
+      this.retailerDealers = res || [];
+      this.filteredRetailerDealers = [...this.retailerDealers];
+
+      // ✅ RESTORE SELECTED DEALER
+      this.selectedRetailerDealer = orderFor.RETAILER_DEALER_ID || null;
+
+      const selectedDealer = this.retailerDealers.find(
+        d => d.ID === this.selectedRetailerDealer
+      );
+
+      if (selectedDealer) {
+        this.retailerDealerSearch = selectedDealer.DESCRIPTION;
+      }
+    });
+ } else if (orderFor.SUB_DEALER_ID) {
         this.selectedType = 'SUB_DEALER';
         this.typeHistory = this.selectedType;
         this.selectedSubDealer = orderFor.SUB_DEALER_ID;

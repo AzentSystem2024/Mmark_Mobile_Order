@@ -185,11 +185,11 @@ onPopState(event: any) {
   if (orderForStr) {
     const orderFor = JSON.parse(orderForStr);
 
-    const dealerId = orderFor?.DEALER_ID;
+    const dealerId = orderFor?.DEALER_ID || orderFor?.RETAILER_DEALER_ID;
     const retailerId = orderFor?.RETAILER_ID;
     const subDealerId = orderFor?.SUB_DEALER_ID;
 
-    this.salesManDealerName = orderFor?.DEALER_NAME;
+    this.salesManDealerName = orderFor?.DEALER_NAME || orderFor?.RETAILER_DEALER_NAME;
     this.salesManRetailerName = orderFor?.RETAILER_NAME;
     this.salesManSubDealerName = orderFor?.SUB_DEALER_NAME;
     
@@ -1201,7 +1201,8 @@ addToCart() {
             size: x.size,
             qty: x.qty,
             combination: x.Combination || '',   // ✅ explicitly log
-            packingID: x.packingID
+            packingID: x.packingID,
+            PairQty: x.PairQty
           })),
 
         semiSizes: data.semiSizes
@@ -1218,11 +1219,14 @@ addToCart() {
             size: x.size,
             qty: x.qty,
             combination: x.Combination || '',   // ✅ explicitly log
-            packingID: x.packingID
+            packingID: x.packingID,
+            PairQty: x.PairQty
           }))
       };
 
       // 🔥 LOG EACH COLOR ITEM
+
+      console.log(cartItem,"cartItem")
 
       finalItemsToAdd.push(cartItem);
       cart.push(cartItem);

@@ -9,7 +9,7 @@
 
   <span class="title sk sk-text lg" *ngIf="loading"></span>
 
-   <div class="order-summary" *ngIf="!loading && order?.items?.length">
+   <!-- <div class="order-summary" *ngIf="!loading && order?.items?.length">
 
   <ng-container *ngIf="showSetTotal()">
     <span class="summarylable">Set : <span class="summaryCount">{{ totalSetQty }}</span></span>
@@ -25,6 +25,11 @@
     <span class="summarylable">Case : <span class="summaryCount">{{ totalCaseQty }}</span></span>
   </ng-container>
 
+  </div> -->
+
+   <div class="total-pairs-badge"
+       *ngIf="!loading && order?.items?.length">
+    Total Pair : {{ getOrderTotalPairs() }}
   </div>
 
   </div>
@@ -79,6 +84,7 @@
 
       <!-- LEFT -->
       <div class="cart-left">
+        
         <div class="art">{{ item.artNo }}</div>
         <div class="category">{{ item.categoryName }}</div>
 

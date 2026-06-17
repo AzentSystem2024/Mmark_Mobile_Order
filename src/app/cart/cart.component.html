@@ -4,6 +4,9 @@
   <div class="cart-header-bar">
   <i class="fa-solid fa-angle-left back-icon" (click)="goBack()"></i>
   <span class="cart-title">Cart</span>
+  <div class="total-pairs-badge" *ngIf="cartItems.length">
+    Total Pair : {{ getCartTotalPairs() }}
+  </div>
 </div>
 <div class="cart-item-container">
 
@@ -29,6 +32,7 @@
 
     <!-- LEFT -->
     <div class="cart-left">
+      
       <div class="art">{{ item.artNo }}</div>
       <div class="category">{{ item.categoryName }}</div>
 
@@ -39,6 +43,11 @@
           [style.background]="getColorHex(item.color)">
         </span>
       </div>
+
+      <!-- ✅ TOTAL PAIRS -->
+      <!-- <div class="total-pairs">
+        Total Pair: {{ getItemTotalPairs(item) }}
+      </div> -->
     </div>
 
     <!-- RIGHT -->

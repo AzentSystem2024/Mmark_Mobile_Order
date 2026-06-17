@@ -269,17 +269,23 @@ hasQty(arr: any[]): boolean {
 
 getSetTotal(item: any): number {
   return (item.setSizes || [])
-    .reduce((a: number, b: any) => a + (b.qty || 0), 0);
+    .reduce((a: number, b: any) =>
+      a + ((b.qty || 0) * (b.pairqty || 0)),
+    0);
 }
 
 getSemiTotal(item: any): number {
   return (item.semiSizes || [])
-    .reduce((a: number, b: any) => a + (b.qty || 0), 0);
+    .reduce((a: number, b: any) =>
+      a + (b.qty || 0),
+    0);
 }
 
 getCaseTotal(item: any): number {
   return (item.caseSizes || [])
-    .reduce((a: number, b: any) => a + (b.qty || 0), 0);
+    .reduce((a: number, b: any) =>
+      a + ((b.qty || 0) * (b.pairqty || 0)),
+    0);
 }
 
 
@@ -336,6 +342,21 @@ showCaseTotal(): boolean {
   return this.totalCaseQty > 0;
 }
 
+getItemTotalPairs(item: any): number {
+  return this.getSetTotal(item) +
+         this.getSemiTotal(item) +
+         this.getCaseTotal(item);
+}
+
+getOrderTotalPairs(): number {
+  if (!this.order?.items) return 0;
+
+  return this.order.items.reduce(
+    (sum: number, item: any) => sum + this.getItemTotalPairs(item),
+    0
+  );
+}
+
 
 
 }
@@ -363,11 +384,13 @@ export interface ViewOrderItem {
 export interface SetSize {
   size: string;
   qty: number;
+  pairqty:number;
 }
 
 export interface SemiSize {
   size: string;
   qty: number;
+  pairqty:number;
 }
 
 export interface CaseSize {
@@ -375,5 +398,6 @@ export interface CaseSize {
   size: string;
   qty: number;
   combination: string;
+  pairqty:number;
 }
 

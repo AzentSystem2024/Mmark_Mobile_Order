@@ -82,6 +82,8 @@ export class LoginPageComponent {
 
   otpId :any;
 
+  isOtpJustSent = false;
+
   changePassword = {
   OLD_PASSWORD: '',
   NEW_PASSWORD: '',
@@ -105,6 +107,10 @@ export class LoginPageComponent {
   isUpdatingPassword = false;
 
   isSavingPassword = false;
+
+  showLoginOtpPopup = false;
+
+  otpType: 'login' | 'forgot' | null = null;
 
 
 
@@ -161,6 +167,41 @@ if(!loginDetails.PASSWORD)
 
     } else {
 
+
+      // 🔥 NEW CONDITION FOR OTP
+      const isOtpRequired = res.IS_OTP_REQUIRED_FOR_LOGIN === true;
+      const lastLogin = (res.LastLoginTime || '').trim();
+
+      const isLastLoginToday = lastLogin 
+        ? this.isToday(lastLogin) 
+        : false;
+
+      const isFirstLogin = !lastLogin;
+
+      console.log(isLastLoginToday,"isLastLoginToday")
+
+      if (isOtpRequired && (isFirstLogin || !isLastLoginToday)) {
+
+        //  store login data temporarily
+        sessionStorage.setItem('TempLoginData', JSON.stringify(res));
+
+        //  set email (use user email or default)
+        this.forgotEmail = res.EMAIL && res.EMAIL.trim() 
+        ? res.EMAIL 
+        : res.DEFAULT_EMAIL;
+
+        //  open OTP popup
+        this.otpType = 'login';
+        this.showLoginOtpPopup = true;
+        this.showOtpBox = true;
+
+        //  directly send OTP
+        this.sendLoginOtp();
+
+        return; // stop navigation
+      }
+
+
       sessionStorage.setItem('SessionID', JSON.stringify(res.SessionID));
       sessionStorage.setItem('LogData', JSON.stringify(res));
 
@@ -192,6 +233,31 @@ if(!loginDetails.PASSWORD)
       this.isLogin = false;
     }
   }
+
+
+  isToday(dateString: string): boolean {
+
+  if (!dateString || dateString.trim() === '') return false;
+
+  try {
+    const [datePart] = dateString.split(' '); // "20-04-2026"
+
+    const [day, month, year] = datePart.split('-').map(Number);
+
+    // ✅ create correct JS date
+    const inputDate = new Date(year, month - 1, day);
+
+    const today = new Date();
+
+    return (
+      inputDate.getDate() === today.getDate() &&
+      inputDate.getMonth() === today.getMonth() &&
+      inputDate.getFullYear() === today.getFullYear()
+    );
+  } catch {
+    return false;
+  }
+}
 
 
   validateCurrentPassword() {
@@ -420,6 +486,7 @@ cancelForgotPassword() {
 
   this.otpError = false;
   this.emailError = false;
+  this.otpType = null;
 
   if (this.interval) {
     clearInterval(this.interval);
@@ -489,6 +556,7 @@ checkPasswordMatch() {
 
 openForgotPassword() {
   this.showForgotPopup = true;
+  this.otpType = 'forgot';
   this.showOtpBox = false;
   this.forgotEmail = '';
   this.otp = '';
@@ -657,65 +725,92 @@ startTimer() {
 
 resendOtp() {
 
-  if (!this.forgotEmail) {
-    this.toastr.error("Email not found");
-    return;
-  }
-
-  
+  // 🔹 clear OTP boxes
   this.otpDigits = ['', '', '', '', '', ''];
   this.otpArray = ['', '', '', '', '', ''];
 
-   // 🔹 clear input boxes manually
   this.otpInputs.forEach((input) => {
     input.nativeElement.value = '';
   });
 
-
   this.isSendingOtp = true;
-  
 
-  const payload = {
-    Email: this.forgotEmail.trim()
-  };
+  // 🔥 LOGIN OTP FLOW
+  if (this.otpType === 'login') {
 
-  this.dataservice.generateOtp(payload).subscribe((res: any) => {
+    const loginData = JSON.parse(sessionStorage.getItem('TempLoginData') || '{}');
 
-    this.isSendingOtp = false;
+    const payload = {
+      UserID: loginData.USER_ID,
+      LoginName: loginData.LOGIN_NAME
+    };
 
-    if (res.flag === 1) {
+    this.dataservice.generateLoginOtp(payload).subscribe((res: any) => {
 
-      this.otpId = res.OtpID;
+      this.isSendingOtp = false;
 
-      this.toastr.success("OTP resent successfully");
+      if (res.flag === 1) {
 
-      // reset OTP boxes
-      this.otpDigits = ['', '', '', '', '', ''];
-      this.otpArray = ['', '', '', '', '', ''];
+        this.otpId = res.OtpID;
 
-      // restart timer
-      this.startTimer();
-      
+        this.toastr.success("Login OTP resent successfully");
 
-      // focus first box
-      setTimeout(() => {
-        this.otpInputs.first.nativeElement.focus();
-      });
+        this.startTimer();
 
-    } 
-    else {
+        setTimeout(() => {
+          this.otpInputs.first.nativeElement.focus();
+        });
 
-      this.toastr.error(res.message || "Failed to resend OTP");
+      } else {
+        this.toastr.error(res.message || "Failed to resend OTP");
+      }
 
+    }, () => {
+      this.isSendingOtp = false;
+      this.toastr.error("Server error while resending OTP");
+    });
+
+  }
+
+  // 🔥 FORGOT PASSWORD FLOW
+  else {
+
+    if (!this.forgotEmail) {
+      this.toastr.error("Email not found");
+      this.isSendingOtp = false;
+      return;
     }
 
-  }, () => {
+    const payload = {
+      Email: this.forgotEmail.trim()
+    };
 
-    this.isSendingOtp = false;
-    this.toastr.error("Server error while resending OTP");
+    this.dataservice.generateOtp(payload).subscribe((res: any) => {
 
-  });
+      this.isSendingOtp = false;
 
+      if (res.flag === 1) {
+
+        this.otpId = res.OtpID;
+
+        this.toastr.success("OTP resent successfully");
+
+        this.startTimer();
+
+        setTimeout(() => {
+          this.otpInputs.first.nativeElement.focus();
+        });
+
+      } else {
+        this.toastr.error(res.message || "Failed to resend OTP");
+      }
+
+    }, () => {
+      this.isSendingOtp = false;
+      this.toastr.error("Server error while resending OTP");
+    });
+
+  }
 }
 
 
@@ -745,8 +840,13 @@ onOtpInput(event: any, index: number) {
   }
 
   // Check if OTP completed
-  if (!this.otpDigits.includes('')) {
-    this.verifyOtp();
+  if (this.otpDigits.join('').length === this.otpDigits.length) {
+    if (this.otpType === 'login') {
+      this.verifyLoginOtp();   // ✅ login API
+    } 
+    else {
+      this.verifyOtp();        // ✅ forgot password API
+    }
   }
 
 }
@@ -757,6 +857,7 @@ onOtpKeyDown(event: KeyboardEvent, index: number) {
 
     // clear current value
     this.otpArray[index] = '';
+    this.otpDigits[index] = '';
 
     const input = this.otpInputs.toArray()[index].nativeElement;
     input.value = '';
@@ -889,5 +990,150 @@ validateResetPasswordPolicy() {
   this.resetPasswordPolicyValid = true;
 }
 
+
+sendLoginOtp() {
+
+  this.otpDigits = ['', '', '', '', '', ''];
+  this.otpArray = ['', '', '', '', '', ''];
+
+  this.isSendingOtp = true;
+
+  const payload = {
+    UserID: JSON.parse(sessionStorage.getItem('TempLoginData') || '{}').USER_ID
+  };
+
+  this.dataservice.generateLoginOtp(payload).subscribe((res: any) => {
+
+    this.isSendingOtp = false;
+
+    if (res.flag === 1) {
+
+      this.isOtpJustSent = true; 
+
+      this.otpId = res.OtpID;
+      this.startTimer();
+
+      this.focusFirstOtpBox();
+
+    } else {
+      this.toastr.error(res.message);
+    }
+
+  });
+}
+
+
+
+verifyLoginOtp() {
+
+  const otp = this.otpDigits.join('');
+
+  if (!otp || otp.length !== this.otpDigits.length) {
+    this.otpError = true;
+    return;
+  }
+
+  this.isVerifyingOtp = true;
+
+  const loginData = JSON.parse(sessionStorage.getItem('TempLoginData') || '{}');
+
+  const payload = {
+    OtpID: this.otpId,
+    Otp: otp,
+    UserID: loginData.USER_ID,
+    LoginName: loginData.LOGIN_NAME
+  };
+
+  this.dataservice.verifyLoginOtp(payload).subscribe((res: any) => {
+
+    this.isVerifyingOtp = false;
+
+    if (res.flag === 1) {
+
+      const loginData = JSON.parse(sessionStorage.getItem('TempLoginData') || '{}');
+
+      sessionStorage.setItem('SessionID', JSON.stringify(res.SessionID));
+      sessionStorage.setItem('LogData', JSON.stringify(loginData));
+
+      sessionStorage.removeItem('TempLoginData');
+
+      this.showLoginOtpPopup = false;
+
+      this.toastr.success('Login verified successfully');
+
+      this.otpDigits = ['', '', '', '', '', ''];
+      this.otpArray = ['', '', '', '', '', ''];
+      this.otpType = null;
+
+      setTimeout(() => {
+        this.routes.navigate(['/home']);
+      }, 500);
+
+    } else {
+      this.toastr.error(res.message);
+      this.otpError = true;
+    }
+
+  });
+}
+
+resendLoginOtp() {
+  this.isOtpJustSent = false;
+  this.otpDigits = ['', '', '', '', '', ''];
+  this.otpArray = ['', '', '', '', '', ''];
+  this.otpInputs.forEach((input) => {
+    input.nativeElement.value = '';
+  });
+  this.sendLoginOtp();
+
+  this.focusFirstOtpBox();
+}
+
+
+focusFirstOtpBox() {
+  setTimeout(() => {
+    if (this.otpInputs && this.otpInputs.length > 0) {
+      this.otpInputs.first.nativeElement.focus();
+    }
+  }, 150);   
+}
+
+
+maskEmail(email: string): string {
+  if (!email) return '';
+
+  const [name, domainFull] = email.split('@');
+  if (!name || !domainFull) return email;
+
+  const [domain, extension] = domainFull.split('.');
+
+  // 🔹 mask name
+  const nameVisible = name.slice(0, 3);
+  const nameMasked = '*'.repeat(Math.max(name.length - 3, 0));
+
+  // 🔹 mask domain
+  const domainVisible = domain.slice(0, 3);
+  const domainMasked = '*'.repeat(Math.max(domain.length - 3, 0));
+
+  return `${nameVisible}${nameMasked}@${domainVisible}${domainMasked}.${extension}`;
+}
+
+cancelLoginOtp() {
+  this.showLoginOtpPopup = false;
+  this.otpDigits = ['', '', '', '', '', ''];
+  this.otpArray = ['', '', '', '', '', ''];
+  this.otpType = null;
+}
+
+//  getDeviceId(): string {
+//   let deviceId = localStorage.getItem('deviceId');
+
+//   if (!deviceId) {
+//     deviceId = crypto.randomUUID(); // ✅ modern & best
+//     localStorage.setItem('deviceId', deviceId);
+//   }
+
+//   return deviceId;
+// }
 
 }

@@ -49,7 +49,7 @@ export class CartComponent {
 
   ngOnInit() {
 
-  history.pushState(null, '', location.href);
+  // history.pushState(null, '', location.href);
   
   this.cartItems = JSON.parse(sessionStorage.getItem('cart') || '[]');
   
@@ -301,7 +301,8 @@ cancelRemove() {
 }
 
 goBack() {
-  this.routes.navigate(['/home']);
+  if (this.isSaving) return;
+  window.history.back();
 }
 
 openSubmitConfirm() {
@@ -331,18 +332,18 @@ trySubmit() {
   const payload = this.buildPayload();
   console.log(payload,"Payload")
 
-  // this.service.saveNewOrder(payload).subscribe({
-  //   next: (res: any) => {
-  //     if (res?.flag === '1') {
-  //       this.handleSuccess(res.message);
-  //     } else {
-  //       this.handleFailure(res?.message || 'Failed to submit order');
-  //     }
-  //   },
-  //   error: () => {
-  //     this.handleRetry();
-  //   }
-  // });
+  this.service.saveNewOrder(payload).subscribe({
+    next: (res: any) => {
+      if (res?.flag === '1') {
+        this.handleSuccess(res.message);
+      } else {
+        this.handleFailure(res?.message || 'Failed to submit order');
+      }
+    },
+    error: () => {
+      this.handleRetry();
+    }
+  });
 }
 
 handleFailure(message: string) {
@@ -620,9 +621,16 @@ editItem(index: number) {
 }
 
 
+// getSetTotal(item: any): number {
+//   return item.setSizes?.reduce(
+//     (sum: number, x: any) => sum + (x.qty || 0),
+//     0
+//   ) || 0;
+// }
+
 getSetTotal(item: any): number {
   return item.setSizes?.reduce(
-    (sum: number, x: any) => sum + (x.qty || 0),
+    (sum: number, x: any) => sum + ((x.qty || 0) * (x.PairQty || 0)),
     0
   ) || 0;
 }
@@ -634,9 +642,16 @@ getSemiTotal(item: any): number {
   ) || 0;
 }
 
+// getCaseTotal(item: any): number {
+//   return item.caseSizes?.reduce(
+//     (sum: number, x: any) => sum + (x.qty || 0),
+//     0
+//   ) || 0;
+// }
+
 getCaseTotal(item: any): number {
   return item.caseSizes?.reduce(
-    (sum: number, x: any) => sum + (x.qty || 0),
+    (sum: number, x: any) => sum + ((x.qty || 0) * (x.PairQty || 0)),
     0
   ) || 0;
 }
@@ -676,6 +691,20 @@ showSnackBar(
   this.snackTimer = setTimeout(() => {
     this.showSnack = false;
   }, duration);
+}
+
+
+getItemTotalPairs(item: any): number {
+  return this.getSetTotal(item) +
+         this.getSemiTotal(item) +
+         this.getCaseTotal(item);
+}
+
+getCartTotalPairs(): number {
+  return this.cartItems.reduce(
+    (sum: number, item: any) => sum + this.getItemTotalPairs(item),
+    0
+  );
 }
 
 

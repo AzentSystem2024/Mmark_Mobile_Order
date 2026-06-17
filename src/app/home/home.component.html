@@ -257,6 +257,7 @@
       [(ngModel)]="retailerDealerSearch"
       (input)="filterRetailerDealers()"
       [disabled]="!selectedRetailer"
+      [readonly]="hasCartItems()"
     />
 
     <i

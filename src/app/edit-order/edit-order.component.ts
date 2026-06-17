@@ -322,7 +322,8 @@ resetScreen() {
         size: x.size,
         qty: x.qty,
         combination: x.Combination || '',
-        packingID: x.packingID
+        packingID: x.packingID,
+        PairQty: x.PairQty
       })),
 
     semiSizes: this.semiSizes
@@ -339,7 +340,8 @@ resetScreen() {
         size: x.size,
         qty: x.qty,
         combination: x.Combination || '',
-        packingID: x.packingID
+        packingID: x.packingID,
+        PairQty: x.PairQty
       })),
   };
 
@@ -648,7 +650,7 @@ resetScreen() {
   
     goBack() {
   
-    this.router.navigate(['/cart']);
+    window.history.back();
   }
   
   

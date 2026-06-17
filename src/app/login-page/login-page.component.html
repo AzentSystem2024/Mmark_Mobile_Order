@@ -258,9 +258,9 @@
 
       </div>
 
-      <span *ngIf="otpError" class="error-text">
+      <!-- <span *ngIf="otpError" class="error-text">
         Please enter the OTP
-      </span>
+      </span> -->
 
       <button
         class="save-btn"
@@ -300,6 +300,91 @@
     </div>
 
     <button class="cancel-btn" (click)="cancelForgotPassword()">
+      Cancel
+    </button>
+
+  </div>
+
+</div>
+
+<!-- LOGIN OTP POPUP -->
+<div class="forgot-overlay" *ngIf="showLoginOtpPopup">
+
+  <div class="forgot-popup">
+
+    <h5>Login Verification</h5>
+
+    <p class="otp-text">
+    <ng-container *ngIf="isOtpJustSent; else simpleText">
+      OTP sent to <strong>{{ maskEmail(forgotEmail) }}</strong>
+    </ng-container>
+
+    <ng-template #simpleText>
+      Enter the OTP
+    </ng-template>
+  </p>
+
+    <!-- OTP BOXES -->
+    <div class="otp-box-container">
+
+      <input
+        #otpInput
+        *ngFor="let box of otpArray; let i = index"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        type="text"
+        maxlength="1"
+        class="otp-box"
+        [(value)]="otpArray[i]"
+        (input)="onOtpInput($event, i)"
+        (keydown)="onOtpKeyDown($event, i)"
+        [disabled]="isSendingOtp"
+      />
+
+    </div>
+
+    <!-- <span *ngIf="otpError" class="error-text">
+      Please enter the OTP
+    </span> -->
+
+    <!-- VERIFY BUTTON -->
+    <button
+      class="save-btn"
+      (click)="verifyLoginOtp()"
+      [disabled]="otpDigits.join('').length !== otpDigits.length || isVerifyingOtp"
+    >
+
+      <span *ngIf="!isVerifyingOtp">
+        Verify OTP
+      </span>
+
+      <span *ngIf="isVerifyingOtp" class="sending-otp">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Verifying...
+      </span>
+
+    </button>
+
+    <!-- TIMER -->
+    <div class="otp-timer">
+
+      <span *ngIf="timer > 0">
+        Resend OTP in {{timer}}s
+      </span>
+
+      <a *ngIf="timer === 0 && !isSendingOtp" (click)="resendLoginOtp()">
+        Resend OTP
+      </a>
+
+        <span *ngIf="isSendingOtp" class="sending-otp">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          Sending...
+        </span>
+
+    </div>
+
+    <!-- CANCEL -->
+    <button class="cancel-btn" (click)="cancelLoginOtp()">
       Cancel
     </button>
 

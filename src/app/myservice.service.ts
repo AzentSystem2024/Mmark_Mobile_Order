@@ -7,10 +7,9 @@ import { Injectable } from '@angular/core';
 export class MyserviceService {
   //  private baseUrl = 'http://coreapi.mmarkonline.com/api/';
 
-  // private baseUrl = 'https://localhost:44306/api/';
-  // private baseUrl = 'http://costrxapi.diligenzit.com/api/';
+  private baseUrl = 'https://localhost:44306/api/';
 
-  private baseUrl = 'https://mobileapi.mmarkonline.com/api/';
+  // private baseUrl = 'https://mobileapi.mmarkonline.com/api/';
 
   constructor(private http: HttpClient) {}
 
@@ -24,6 +23,16 @@ export class MyserviceService {
     const payload = item;
     return this.http.post(`${this.baseUrl}Login/logout`, payload);
   }
+
+  generateLoginOtp(payload:any){
+    return this.http.post(`${this.baseUrl}Login/GenerateOtp`, payload);
+  }
+
+  verifyLoginOtp(payload:any){
+    return this.http.post(`${this.baseUrl}Login/VerifyOtp`, payload);
+  }
+
+
 
   get_DropDown_Data(item: any) {
     const payload = item;
@@ -39,7 +48,6 @@ export class MyserviceService {
     const payload = item;
     return this.http.post(`${this.baseUrl}DropDown/RetailerDealer`, payload);
   }
-
 
   getArtNo(categoryId: string) {
     return this.http.post(`${this.baseUrl}NewOrder/GetArtNo`, {
