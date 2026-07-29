@@ -7,9 +7,9 @@ import { Injectable } from '@angular/core';
 export class MyserviceService {
   //  private baseUrl = 'http://coreapi.mmarkonline.com/api/';
 
-  private baseUrl = 'https://localhost:44306/api/';
+  // private baseUrl = 'https://localhost:44306/api/';
 
-  // private baseUrl = 'https://mobileapi.mmarkonline.com/api/';
+  private baseUrl = 'https://mobileapi.mmarkonline.com/api/';
 
   constructor(private http: HttpClient) {}
 
